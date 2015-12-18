@@ -1,0 +1,979 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 4 of                          */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   |   /*-----------< the text for the file MInterface.h begins here >---------- */
+   |
+   |      (declarations of entities visible to external users of the module)
+   |
+ 5 |   /*-----------------------< end of file MInterface.h >-------------------- */
+   |
+   |
+   |   /*-------< the text for the file MImplementation.c begins here >--------- */
+   |
+10 |   #include <stdio.h>
+   |   #include "MInterface.h"
+   |
+   |      (declarations of entities private to the module plus the)
+   |      (complete declarations of functions exported by the module)
+15 |
+   |   /*------------------< end of file MImplementation.c >-------------------- */
+
+Program Template 4.1 Interface and Implementation Files for Module M
+
+/*********************************************************************************/
+
+
+   |   #include <stdio.h>             
+   |   #include "ModuleAInterface.h"                   /* external modules used */
+   |   #include "ModuleBInterface.h"                    /* by your main program */
+   |
+ 5 |   (declarations of entities used by your main program)
+   |
+   |   int main(void)
+   |   {
+   |      (statements to execute in the main part of your program)
+10 |   
+   |   }
+
+Program Template 4.2 A Main Program Using Two Modules A and B
+
+/*********************************************************************************/
+
+
+   |   /* Use a file include directive to import data type definitions for */
+   |   /* priority queue items and the priority queue data type. */
+   |
+   |      #include "PQTypes.h"        /* defines types PQItem and PriorityQueue */
+ 5 |   
+   |   /* Define the function prototypes for functions that can be used by */
+   |   /* external users of the priority queue module. */
+   |
+   |      extern void Initialize(PriorityQueue *);       /* creates an empty PQ */
+10 |
+   |      extern int Empty(PriorityQueue *);             /* true if PQ is empty */
+   |
+   |      extern int Full(PriorityQueue *);               /* true if PQ is full */
+   |
+15 |      extern void Insert(PQItem, PriorityQueue *);       /* puts the PQItem */
+   |                                                  /* into the PriorityQueue */
+   |
+   |      extern PQItem Remove(PriorityQueue *);             /* removes an item */
+   |
+   |
+   
+Program 4.3 The Interface File, PQInterface.h, for a Priority Queue Module
+
+/*********************************************************************************/
+
+   |   void PriorityQueueSort(SortingArray A)
+   |   {   
+   |      int i;  PriorityQueue PQ;
+   |
+ 5 |      Initialize(&PQ);                         /* let PQ be initially empty */
+   |      
+   |      for (i = 0; i < 10; ++i) Insert(A[i],&PQ);
+   |
+   |      for (i = 9; i >= 0; --i) A[i] = Remove(&PQ);
+   |   }
+   
+Program 4.4 A Priority Queue Sorting Procedure
+
+/*********************************************************************************/
+
+   |   #include <stdio.h>            /* access standard input-output operations */
+   |   #include "PQInterface.h"          /* access operations and types for PQs */
+   |
+   |   typedef PQItem SortingArray[MAXCOUNT];           /* Note: MAXCOUNT == 10 */
+ 5 |
+   |   void PriorityQueueSort(SortingArray A)
+   |   {
+   |      int i;                          /* i is an index variable for array A */
+   |      PriorityQueue PQ;                           /* PQ is a priority queue */
+10 |   
+   |      Initialize(&PQ);                         /* let PQ be initially empty */
+   |      for (i = 0; i < MAXCOUNT; ++i) Insert(A[i],&PQ);
+   |      for (i = MAXCOUNT - 1; i >= 0; --i) A[i] = Remove(&PQ);
+   |   }
+15 |
+   |   int SquareOf(int x) { return x*x; }      /* computes x2, the square of x */
+   |
+   |   int main(void)
+   |   {
+20 |      int i; PriorityQueue PQ;
+   |
+   |      /* initialize array A to ten values to sort and print them */
+   |         for (i = 0; i < 10; ++i) {
+   |            A[i] = SquareOf(3*i - 13);   
+25 |            printf("%d, ",A[i]); /* prints: 169,100,49,16,1,4,25,64,121,196 */
+   |         }
+   |         printf("\n");
+   |   
+   |      /* sort array A, using priority queue sorting */
+30 |         PriorityQueueSort(A);
+   |
+   |      /* print the values in A after sorting */
+   |         for (i = 0; i < 10; ++i) {
+   |            printf("%d,",A[i]);   /* prints: 1,4,16,25,49,64,100,121,169,196 */
+35 |         }
+   |         printf("\n");
+   |   }
+   
+Program 4.5 Sorting Using a Priority Queue
+
+/*********************************************************************************/
+
+
+   |
+   |   /* Exports the data types PQItem and PriorityQueue */
+   |
+   |   #define MAXCOUNT 10              /* PQÕs can hold at most MAXCOUNT items */
+ 5 |   
+   |      
+   |   typedef int PQItem;          /* to start with, PQItems are just integers */
+   |   
+   |   
+10 |   typedef  struct PQNodeTag {
+   |               PQItem              NodeItem;
+   |               struct PQNodeTag   *Link;   
+   |            }PQListNode;
+   |         
+15 |      
+   |   typedef  struct {
+   |               int           Count;
+   |               PQListNode   *ItemList;
+   |            }PriorityQueue;
+   |
+   
+Program 4.6 Header File PQTypes.h for Priority Queue Data Types
+
+/*********************************************************************************/
+
+
+   |   /*
+   |    *   The file "PQImplementation.c" for the Sorted Linked-List
+   |    *   Representation of Priority Queues
+   |    */
+ 5 |   
+   |   /* First, provide access to standard input-output functions. */
+   |   /* Then, include the PQInterface.h file giving exactly one common, shared*/
+   |   /* set of definitions of types, constants and extern function prorotypes */
+   |
+10 |   #include <stdio.h>                 /* include standard input-output file */
+   |   #include "PQInterface.h"          /* access operations and types for PQs */
+   |   
+   |
+   |
+15 |
+   |   /* 
+   |    *  Next, give full definitions for all functions including both those
+   |    *  that are exported to external module users via the extern function 
+   |    *  prototypes in the PQInterface.h file, and those which are used
+20 |    *  internally and privately by the PQImplementation.c file.
+   |    */
+   |
+   |
+   |    /*----------------------------------------------------------------------*/
+25 |   
+   |      void Initialize(PriorityQueue *PQ)
+   |      {
+   |         PQ->Count = 0;      /* let PQÕs item count be zero, and */
+   |         PQ->ItemList = NULL;  /* let the link to its list of items be NULL */
+30 |      }
+   |   
+   |    /*----------------------------------------------------------------------*/
+   |   
+   |      int Empty(PriorityQueue *PQ)
+35 |      {
+   |         return (PQ->Count == 0);  /* PQ is empty if its item count is zero */
+   |      }
+   |   
+   |    /*----------------------------------------------------------------------*/
+40 |   
+   |      int Full(PriorityQueue *PQ)
+   |      {                                        /* PQ is full if it contains */
+   |         return (PQ->Count == MAXCOUNT);           /* the maximum number of */
+   |      }                                             /* items allowed in PQs */
+45 |
+   |    /*----------------------------------------------------------------------*/
+   |   
+   |      PQListNode *SortedInsert(PQItem Item, PQListNode *P)
+   |      {
+50 |         PQListNode *N;            /* N points to priority queue list nodes */
+   |      
+   |         if ((P == NULL) || (Item >= P->NodeItem)) { /* if old list is NULL */
+   |            N = (PQlistNode *) malloc(sizeof(PQListNode));   /* or new item */
+   |            N->NodeItem = Item;    /* is of highest priority, insert a node */
+55 |            N->Link = P;         /* with new item on front of PQÕs ItemList */ 
+   |            return (N);
+   |         } else {              /* otherwise, insert a node for the new Item */
+   |            P->Link = SortedInsert(Item,P->Link);        /* in sorted order */
+   |            return (P);                   /* into the tail of PQÕs ItemList */
+60 |         }
+   |      }
+   |   
+   |    /*----------------------------------------------------------------------*/
+   |      
+65 |   
+   |    /*----------------------------------------------------------------------*/
+   |
+   |      void Insert(PQItem Item, PriorityQueue *PQ)
+   |      {
+70 |         if ( ! Full(PQ)) {
+   |            PQ->Count++;             /* increase PQÕs item count and insert */
+   |            PQ->ItemList = SortedInsert(Item,PQ->ItemList);      /* the new */
+   |         }                                         /* Item on PQÕs ItemList */
+   |      }
+75 |   
+   |    /*----------------------------------------------------------------------*/
+   |
+   |      PQItem Remove(PriorityQueue *PQ)
+   |      {
+80 |         PQItem temp;
+   |
+   |         if ( ! Empty(PQ)) {                /* result undefined if PQ empty */
+   |            temp = PQ->ItemList->NodeItem;         /* otherwise, remove the */
+   |            PQ->ItemList = PQ->ItemList->Link;     /* highest priority item */
+85 |            PQ->Count--;                      /* from the front of the list */
+   |            return (temp);                   /* and decrease the item count */
+   |         }
+   |      }
+   |   
+90 |    /*----------------------------------------------------------------------*/
+   |
+
+Program 4.7 Sorted Linked-List Priority Queue Implementation 
+
+/*********************************************************************************/
+
+
+   |   #define MAXCOUNT 10
+   |   
+   |   typedef int PQItem;
+   |   
+ 5 |   typedef PQItem PQArray[MAXCOUNT];
+   |   
+   |   typedef  struct {
+   |               int       Count;
+   |               PQArray   ItemArray;
+   |            }PriorityQueue;
+
+
+   |   /*
+   |    *   The file "PQImplementation.c" for the Unsorted Array
+   |    *   Representation of Priority Queues
+   |    */
+ 5 |   
+   |   #include <stdio.h>                 /* include standard input-output file */
+   |   #include "PQInterface.h"          /* access operations and types for PQs */
+   |                        
+   |   /*
+10 |    *   Next, give full definitions for all functions including both those
+   |    *   that are exported to external module users via the extern function 
+   |    *   prototypes in the PQInterface.h file, and those which are used
+   |    *   internally and privately by the PQImplementation.c file.
+   |    */
+15 |
+   |    /*----------------------------------------------------------------------*/
+   |   
+   |      void Initialize(PriorityQueue *PQ)
+   |      {
+20 |         PQ->Count = 0;                      /* let PQÕs item count be zero */
+   |      }
+   |   
+   |    /*----------------------------------------------------------------------*/
+   |   
+25 |      int Empty(PriorityQueue *PQ)
+   |      {
+   |         return (PQ->Count == 0);  /* PQ is empty if its item count is zero */
+   |      }
+   |   
+30 |    /*----------------------------------------------------------------------*/
+   |   
+   |      int Full(PriorityQueue *PQ)
+   |      {                                        /* PQ is full if it contains */
+   |         return (PQ->Count == MAXCOUNT);           /* the maximum number of */
+35 |      }                                             /* items allowed in PQs */
+   |
+   |    /*----------------------------------------------------------------------*/
+   |   
+   |      void Insert(PQItem Item, PriorityQueue *PQ)
+40 |      {
+   |         if ( ! Full(PQ)) {                           /* insert item at end */
+   |            PQ->ItemArray[PQ->Count] = Item;                /* of array and */
+   |            PQ->Count++;                        /* increase PQÕs item count */
+   |         }                  
+45 |      }
+   |   
+   |
+   |    /*----------------------------------------------------------------------*/
+   |
+50 |   PQItem Remove(PriorityQueue *PQ)
+   |   {
+   |      int i;             /* i is an index variable that indexes array items */
+   |      int MaxIndex;         /* MaxIndex is the location of the biggest item */
+   |      PQItem MaxItem;           /* MaxItem is the value of the biggest item */
+55 |
+   |      if (!Empty(PQ)) {                     /* result undefined if PQ empty */
+   |         MaxItem = PQ->ItemArray[0];   / *initially, let the zeroth item be */
+   |         MaxIndex = 0;                     /* the biggest item found so far */
+   |         for ( i = 1; i < PQ->Count; ++i) {   /* scan the rest of the items */
+60 |            if (PQ->ItemAray[i] > MaxItem) {     /* and replace the current */
+   |               MaxItem = PQ->ItemArray[i];              /* biggest with any */
+   |               MaxIndex = i;                  /* bigger ones that are found */
+   |            }
+   |         }
+65 |         PQ->Count--;                   /* finally, decrease the item count */
+   |         PQ->ItemArray[MaxIndex] = PQ->ItemArray[PQ->Count];         /* and */
+   |         return (MaxItem);      /* put the last item in the hole vacated by */
+   |      }                          /* removing and returning the biggest item */
+   |   }
+70 |   
+   |    /*----------------------------------------------------------------------*/
+   |
+
+Program 4.8 Unsorted Array Priority Queue Implementation
+
+/*********************************************************************************/
+
+
+   |   #include <stdio.h>
+   |   #include "CalculatorModuleInterface.h"
+   |   #include "YourCalculationModuleInterface.h"
+   |   
+ 5 |   int main(void)
+   |   {
+   |      InitializeAndDisplayCalculator();
+   |   
+   |      do {
+10 |
+   |         GetAndProcessOneEvent();
+   |   
+   |         if ( UserSubmittedAnExpression() ) {      /* your module  provides */
+   |            Value = Evaluate(Expression);          /* the Evaluate function */
+15 |            Display(Value);
+   |         }
+   |   
+   |      } while ( ! UserWantsToQuit() );
+   |   
+20 |      Shutdown();
+   |   
+   |   }
+   
+Program 4.10 Top-Level Calculator Program Shell
+
+/*********************************************************************************/
+
+
+   |   /*
+   |    *   the file "CalculatorModuleInterface.h"
+   |    */
+   |   
+ 5 |   char *Expression, *Value;
+   |
+   |   extern void InitializeAndDisplayCalculator(void);
+   |   extern void GetAndProcessOneEvent(void);
+   |   extern int UserSubmittedAnExpression(void);
+10 |   extern void Display(char *);
+   |   extern int UserWantsToQuit(void);
+   |   extern void Shutdown(void);
+   |   
+   
+Program 4.11 Interface File for CalculatorModule
+
+/*********************************************************************************/
+
+
+   |   /*
+   |    *   the file "YourCalculationModuleInterface.h"
+   |    */
+   |
+ 5 |   extern char *Evaluate(char *); 
+   |   
+   |
+   
+Program 4.12 Interface File for YourCalculationModule
+
+/*********************************************************************************/
+
+
+   extern void SetLink(NodePointer N, NodePointer L); /* assign L to be link of node N */
+   extern NodePointer GetLink(NodePointer N);         /* returns the link of node N */
+   extern void SetItem(NodePointer N, ListItem A);    /* change the item in node N to A */
+   extern void GetItem(NodePointer N, ListItem *A);   /* put node NÕs item in A */
+   extern void AllocateNewNode(NodePointer *N);       /* get a pointer to new node N */
+   extern void FreeNode(NodePointer N);               /* recycle storage for node N */
+
+Program 4.14 Six Basic Linked-List Node Operations
+
+/*********************************************************************************/
+
+   |   void Reverse(NodePointer *L)     /* LÕs address, *L, is needed to change */
+   |   {                           /* what L contains external to this function */
+   |
+   |      NodePointer R;     /* R points to the first node of the reversed list */
+ 5 |      NodePointer N;    /* N points to a node being transferred from L to R */
+   |
+   |      R = null;    /* initialize R, the reversed list, to be the empty list */
+   |
+   |      while (*L != null)  {   /* while there are still nodes remaining in L */
+10 |         N = *L;                           /* let N point to LÕs first node */
+   |         *L = GetLink(*L);        /* now, let L point to the remainder of L */
+   |         SetLink(N,R);                           /* link N to the rest of R */
+   |         R = N;                 /* and make R point to its new first node N */
+   |      }
+15 |   
+   |      *L = R;        /* finally, put a pointer to the reversed list R into L */
+   |   }
+   
+Program 4.15 Reversing a Linked List, L
+
+/*********************************************************************************/
+
+   |   /* -----------------< begin file "ListInterface.h" >--------------------- */
+   |
+   |   /*
+   |    *   The "ListInterface.h" file is included at the beginning of
+ 5 |    *   main programs that use imported linked-list operations, and
+   |    *   also at the beginning of the "ListImplementation.c" file below.
+   |    */
+   |   
+   |      #define    null          NULL;
+10 |
+   |      typedef    ItemType    ListItem;
+   |
+   |      typedef   struct NodeTag {
+   |                   ListItem          Item;
+15 |                   struct NodeTag   *Link;
+   |                }Node;
+   |   
+   |      typedef   Node  *NodePointer;
+   |   
+20 |      extern void SetLink(NodePointer,NodePointer);
+   |      extern NodePointer GetLink(NodePointer);
+   |      extern void SetItem(NodePointer,ListItem);
+   |      extern void GetItem(NodePointer, ListItem *);
+   |      extern void AllocateNewNode(NodePointer *);
+25 |      extern void FreeNode(NodePointer);
+   |      extern void InitializationForLists(void);
+   |   
+   |   /* ------------------< end of file "ListInterface.h" >------------------ */
+   |   
+30 |   /* ----------------< begin file "ListImplementation.c" >---------------- */
+   |
+   |      /*
+   |       *   Private part of module for the normal linked-list representation
+   |       */
+35 |
+   |      #include <stdio.h>
+   |      #include "ItemInterface.h"     /* import ItemType and item assignment */
+   |      #include "ListInterface.h"
+   |
+40 |   /* --------------------------------------------------------------------- */
+   |      
+   |      void SetLink(NodePointer N, NodePointer L)
+   |       {   N->Link = L;    }
+   |
+45 |      
+   |      NodePointer GetLink(NodePointer N) 
+   |      {   return (N->Link);    }
+   |
+   |      
+50 |      void SetItem(NodePointer N, ListItem A)     /* Note: AssignItem(*L,R) */
+   |      {   AssignItem(&(N->Item),A);   }        /* stores a copy of R in the */
+   |                                         /* address given by the value in L */
+   |      
+   |      void GetItem(NodePointer N, ListItem *A)    /* AssignItem is imported */
+55 |      {   AssignItem(A, N->Item);    }   /* from the "ItemInterface.h" file */
+   |      
+   |      
+   |      void AllocateNewNode(NodePointer *N)
+   |      {   *N = (NodePointer) malloc(sizeof(Node));    }
+60 |      
+   |      
+   |      void FreeNode(NodePointer N)
+   |      {   free(N);   }
+   |      
+65 |      
+   |      void InitializationForLists(void)
+   |      {  /* no initialization for the normal linked list representation */  }
+   |   
+   |   /* ----------------< end of file "ListImplementation.c" >---------------- */
+
+Program 4.16 A Module Representing Linked Lists the Normal Way
+
+/*********************************************************************************/
+
+   |   #define MINPOINTER 0
+   |   #define MAXPOINTER 100
+   |   #define null -1
+   |   
+ 5 |   typedef   int        NodePointer;
+   |
+   |   typedef   ItemType   ListItem;
+   |   
+   |   typedef   struct {
+10 |                ListItem    Item;   
+   |                NodePointer Link;
+   |             }Node; 
+   |
+   |
+15 |   NodePointer  Avail; 
+   |   Node         ListMemory[MAXPOINTER];
+
+Program 4.17 Declarations for Linked Lists Using Arrays of Node Structs
+
+/*********************************************************************************/
+
+   |   void InitializationForLists(void)   
+   |   {
+   |      NodePointer N;
+   |   
+ 5 |      for (N = MINPOINTER; N < MAXPOINTER - 1; ++N) {
+   |         SetLink(N,N+1);
+   |      }
+   |   
+   |      SetLink(MAXPOINTER - 1,null);        /* SetLink will be defined below */
+10 |   
+   |      Avail = MINPOINTER;
+   |   
+   |   }
+   
+Program 4.18 Initialization Function Creating an Available Space List
+
+/*********************************************************************************/
+
+
+   |   void AllocateNewNode(NodePointer *N)
+   |   {
+   |      *N = Avail;        /* let N point to the first node on the list Avail */
+   |      if (Avail != null) {
+ 5 |         Avail = GetLink(Avail);        /* let Avail point to rest of Avail */
+   |         SetLink(*N,null);                /* set Link of N to the null link */
+   |      }
+   |   }
+
+Program 4.19 Allocating a New Node
+
+/*********************************************************************************/
+
+
+   |   void FreeNode(NodePointer N)
+   |   {
+   |      SetLink(N, Avail);             /* let NÕs link point to rest of Avail */
+   |      Avail = N;          /* then, let Avail point to its new first node, N */
+   |   }
+   
+Program 4.20 Freeing a Node
+
+/*********************************************************************************/
+
+   |   /* ---------------< begin file "ListInterface.h" >--------------- */
+   |
+   |   /*
+   |    *   The "ListInterface.h" file is included at the beginning of
+ 5 |    *   main programs that use imported linked-list operations, and
+   |    *   also at the beginning of the "ListImplementation.c" file below.
+   |    */
+   |   
+   |      #define MINPOINTER 0
+10 |      #define MAXPOINTER 100
+   |      #define null -1
+   |   
+   |      typedef   int         NodePointer;
+   |      typedef   ItemType    ListItem;
+15 |
+   |      typedef   struct {
+   |                   ListItem     Item;
+   |                   NodePointer  Link;
+   |                }Node;
+20 |   
+   |      extern void SetLink(NodePointer,NodePointer);
+   |      extern NodePointer GetLink(NodePointer);
+   |      extern void SetItem(NodePointer,ListItem);
+   |      extern void GetItem(NodePointer, ListItem *);
+25 |      extern void AllocateNewNode(NodePointer *);
+   |      extern void FreeNode(NodePointer);
+   |      extern void InitializationForLists(void);
+   |
+   |   /* -----------------< end of file "ListInterface.h" >------------------- */
+30 |
+   |
+   |   /* ---------------< begin file "ListImplementation.c" >----------------- */
+   |   
+   |   /*   Contains hidden implementations for externally used functions. */
+35 |   /*   Also contains private ListMemory array and private Avail pointer */
+   |   /*   not used external to the "ListImplementation.c" file. */
+   |   
+   |      #include <stdio.h>
+   |      #include "ItemInterface.h"
+40 |      #include "ListInterface.h"
+   |
+   |      NodePointer  Avail; 
+   |      Node         ListMemory[MAXPOINTER];
+   |   
+45 |   /* --------------------------------------------------------------------- */
+   |      
+   |      void SetLink(NodePointer N, NodePointer L)
+   |      {   ListMemory[N].Link = L;    }
+   |      
+50 |   /* --------------------------------------------------------------------- */
+   |      
+   |      NodePointer GetLink(NodePointer N)
+   |      {   return (ListMemory[N].Link;    }
+   |      
+55 |   /* --------------------------------------------------------------------- */
+   |      
+   |      void SetItem(NodePointer N, ListItem A)
+   |      {   AssignItem(&(ListMemory[N].Item),A);    }
+   |      
+60 |   /* --------------------------------------------------------------------- */
+   |      
+   |      void GetItem(NodeItem N, ListItem *A)
+   |      {   AssignItem(A,ListMemory[N].Item);    }
+   |      
+65 |   /* --------------------------------------------------------------------- */
+   |
+   |      void InitializationForLists(void)   
+   |      {
+   |         NodePointer N;
+70 |         
+   |         for (N = MINPOINTER; N < MAXPOINTER - 1; ++N) {
+   |            SetLink(N, N+1);
+   |         }
+   |         
+75 |         SetLink(MAXPOINTER - 1,null);          /* SetLink is defined above */
+   |         Avail = MINPOINTER;
+   |      }
+   |      
+   |   /* --------------------------------------------------------------------- */
+80 |      
+   |      void AllocateNewNode(NodePointer *N)
+   |      {
+   |         *N = Avail;     /* let N point to the first node on the list Avail */
+   |         if (Avail != null) {
+85 |            Avail = GetLink(Avail);     /* let Avail point to rest of Avail */
+   |            SetLink(*N,null);             /* set Link of N to the null link */
+   |         }
+   |      }
+   |      
+90 |   /* --------------------------------------------------------------------- */
+   |
+   |      void FreeNode(NodePointer N)
+   |      {
+   |         SetLink(N, Avail);          /* let NÕs link point to rest of Avail */
+95 |         Avail = N;       /* then, let Avail point to its new first node, N */
+   |      }
+   |      
+   |   /* --------------------------------------------------------------------- */
+   |
+   |   /* ---------------< end of file "ListImplementation.c" >---------------- */
+
+Program 4.22 Module for Array of Node Structs Representation
+
+/*********************************************************************************/
+
+
+   |   /* -----------------< begin file "ListInterface.h" >-------------------- */
+   |
+   |   /*
+   |    *   The "ListInterface.h" file is included at the beginning of
+ 5 |    *   main programs that use imported linked-list operations, and
+   |    *   also at the beginning of the "ListImplementation.c" file below.
+   |    */
+   |   
+   |      #define MINPOINTER 0
+10 |      #define MAXPOINTER 100
+   |      #define null -1
+   |   
+   |      typedef    int         NodePointer;
+   |      typedef    ItemType    ListItem;
+15 |   
+   |      extern void SetLink(NodePointer,NodePointer);
+   |      extern NodePointer GetLink(NodePointer);
+   |      extern void SetItem(NodePointer,ListItem);
+   |      extern void GetItem(NodePointer, ListItem *);
+20 |      extern void AllocateNewNode(NodePointer *);
+   |      extern void FreeNode(NodePointer);
+   |      extern void InitializationForLists(void);
+   |
+   |   /* -------------------< end of file "ListInterface.h" >----------------- */
+25 |
+   |
+   |   /* -----------------< begin file "ListImplementation.c" >--------------- */
+   |
+   |   /*
+30 |    *   Contains hidden implementations for externally used functions.
+   |    *   Also contains private Link and Item arrays and private Avail pointer
+   |    *   not used external to the "ListImplementation.c" file.
+   |    */
+   |   
+35 |      #include <stdio.h>
+   |      #include "ItemInterface.h"
+   |      #include "ListInterface.h"
+   |      
+   |      NodePointer       Avail;
+40 |      ListItem          Item[MAXPOINTER];
+   |      NodePointer       Link[MAXPOINTER];
+   |   
+   |   /* --------------------------------------------------------------------- */
+   |      
+45 |      void SetLink(NodePointer N, NodePointer L)
+   |      {   Link[N] = L;   }
+   |      
+   |   /* --------------------------------------------------------------------- */
+   |      
+50 |      NodePointer GetLink(NodePointer N)
+   |      {   return (Link[N]);   }
+   |      
+   |   /* --------------------------------------------------------------------- */
+   |      
+55 |      void SetItem(NodePointer N, ListItem A)
+   |      {   AssignItem(&Item[N],A);    }
+   |      
+   |   /* --------------------------------------------------------------------- */
+   |      
+60 |      void GetItem(NodeItem N, ListItem *A)
+   |      {   AssignItem(A,Item[N]);    }
+   |      
+   |   /* --------------------------------------------------------------------- */
+   |
+65 |      void InitializationForLists(void)   
+   |      {
+   |         NodePointer N;
+   |         
+   |         for (N = MINPOINTER; N < MAXPOINTER - 1; ++N) {
+70 |            SetLink(N, N+1);
+   |         }
+   |         
+   |         SetLink(MAXPOINTER - 1,null);   /* SetLink is defined above */
+   |         Avail = MINPOINTER;
+75 |      }
+   |      
+   |   /* --------------------------------------------------------------------- */
+   |      
+   |      void AllocateNewNode(NodePointer *N)
+80 |      {
+   |         *N = Avail;     /* let N point to the first node on the list Avail */
+   |         if (Avail != null) {
+   |            Avail = GetLink(Avail);     /* let Avail point to rest of Avail */
+   |            SetLink(*N,null);             /* set Link of N to the null link */
+85 |         }
+   |      }
+   |      
+   |   /* --------------------------------------------------------------------- */
+   |
+90 |      void FreeNode(NodePointer N)
+   |      {
+   |         SetLink(N, Avail);          /* let NÕs link point to rest of Avail */
+   |         Avail = N;       /* then, let Avail point to its new first node, N */
+   |      }
+95 |      
+   |   /* --------------------------------------------------------------------- */
+   |
+   |   /* ---------------< end of file "ListImplementation.c" >---------------- */
+
+Program 4.23 Unit for Parallel Array Representation
+
+/*********************************************************************************/
+
+
+   |   /* --------------------------------------------------------------------- */
+   |
+   |      void SetLink(NodePointer N, NodePointer L)
+   |      {   Link[N] = L;   }
+ 5 |
+   |   /* --------------------------------------------------------------------- */
+   |
+   |      NodePointer GetLink(NodePointer N)
+   |      {   return (Link[N]);    }
+10 |
+   |   /* --------------------------------------------------------------------- */
+   |
+   |      void SetItem(NodePointer N, ListItem A)
+   |      {   AssignItem(&Item[N], A);    }
+15 |
+   |   /* --------------------------------------------------------------------- */
+   |
+   |      void GetItem(NodePointer N, ListItem *A)
+   |      {    AssignItem(A,Item[N]);    }
+20 |
+   |   /* --------------------------------------------------------------------- */
+
+Program 4.24 Operations on Parallel Array Members of Nodes
+
+/*********************************************************************************/
+
+
+   |   /* ------------------< begin file "ItemInterface.h" >------------------- */
+   |                     
+   |   typedef int ItemType;
+   |   
+ 5 |   extern void PrintItem(ItemType *);    /* prints an item of type ItemType */
+   |   extern void AssignItem(ItemType *, ItemType); /* assigns copy of second  */
+   |                                              /* argument to first argument */
+   |   /* -----------------< end of file "ItemInterface.h" >------------------- */   
+   |
+10 |   /* ---------------< begin file "ItemImplementation.c" >----------------- */
+   |
+   |   #include <stdio.h>
+   |   #include "ItemInterface.h"
+   |   
+15 |   void PrintItem(ItemType *i)             /* needed to print integer items */
+   |   {   printf("%d", *i);   }
+   |
+   |   void AssignItem(ItemType *Left, ItemType Right)         /* stores a copy */
+   |   {   *Left = Right;      }                   /* of Right in address *Left */
+20 |      
+   |   /* ---------------< end of file "ItemImplementation.c" >--------------- */
+
+Program 4.25 A Module Exporting an Integer ItemType
+
+/*********************************************************************************/
+
+
+   |   /* ------------------< begin file "ItemInterface.h" >------------------- */
+   |                     
+   |   typedef char ItemType[4];
+   |   
+ 5 |   extern void PrintItem(ItemType *);    /* prints an item of type ItemType */
+   |   extern void AssignItem(ItemType *, ItemType);  /* assigns copy of second */
+   |                                              /* argument to first argument */
+   |   /* ------------------< end of file "ItemInterface.h" >------------------ */   
+   |
+10 |   /* ----------------< begin file "ItemImplementation.c" >---------------- */
+   |
+   |   #include <stdio.h>
+   |   #include <string.h>
+   |   #include "ItemInterface.h"
+15 |   
+   |   void PrintItem(Itemtype *i)              /* needed to print string items */
+   |   {   printf("%s", *i);   }
+   |
+   |   void AssignItem(ItemType *Left, ItemType Right)         /* stores a copy */
+20 |   {   strcpy(*Left,Right);    }               /* of Right in address *Left */
+   |      
+   |   /* ---------------< end of file "ItemImplementation.c" >---------------- */
+
+Program 4.26 A Module Exporting an Airport Code ItemType
+
+/*********************************************************************************/
+
+
+   |   /*
+   |    *   This is an example of a "main" program which imports external
+   |    *   list operations and list item types.
+   |    */   
+ 5 |                        
+   |   #include <stdio.h>
+   |   #include "ItemInterface.h" /* the list items can be integers or Airports */
+   |   #include "ListInterface.h"     /* the hidden list implementation can use */
+   |                                   /* either normal linked lists, arrays of */
+10 |                                        /* node structs, or parallel arrays */
+   |      void PrintList(NodePointer L)
+   |      {   
+   |         ListItem A;
+   |
+15 |         printf("(");
+   |         while (L != null) {
+   |            GetItem(L,&A);
+   |            PrintItem(&A);
+   |            L = GetLink(L);
+20 |            if (L != null) printf(",");
+   |         }
+   |         printf(")\n");
+   |      }
+   |   
+25 |    /* -------------------------------------------------------------------- */
+   |   
+   |      void InsertNewFirstNode(ListItem A, NodePointer *L)
+   |      {
+   |         NodePointer N;
+30 |
+   |         AllocateNewNode(&N);
+   |         SetItem(N,A);
+   |         SetLink(N,*L);
+   |         *L = N;
+35 |      }
+   |   
+   |    /* -------------------------------------------------------------------- */
+   |   
+   |      void Reverse(NodePointer *L);                  /* to reverse a list L */
+40 |      {
+   |         NodePointer R = null;
+   |         NodePointer N;
+   |         
+   |         while (*L != null) {
+45 |            N = *L;                        /* let N point to L's first node */
+   |            *L = GetLink(*L);     /* now, let L point to the remainder of L */
+   |            SetLink(N,R);                        /* link N to the rest of R */
+   |            R = N;              /* and make R point to its new first node N */
+   |         }
+50 |      
+   |         *L = R;      
+   |      }
+   |   
+   |    /* -------------------------------------------------------------------- */
+55 |
+   |   int main (void)
+   |   {
+   |      NodePointer L = null;           /* let L be a pointer to a list node, */
+   |                                                          /* initially null */
+60 |      InitializationForLists();      /* initialize prior to list processing */
+   |   
+   |      /* Create a list L pointing to (23, 79, 53) */
+   |         InsertNewFirstNode(53,&L);
+   |         InsertNewFirstNode(79,&L);
+65 |         InsertNewFirstNode(23,&L);
+   |   
+   |      /* Print the List */
+   |         PrintList(L);                      /* prints the list (23, 79, 53) */
+   |
+70 |      /* Now, reverse the list L */
+   |         Reverse(&L);
+   |   
+   |      /* Print the list L again to show the change */
+   |         PrintList(L);                      /* prints the list (53, 79, 23) */
+75 |   }
+
+Program 4.28 Main Linked List Program Using Module Interfaces
+
+/*********************************************************************************/
+
+
+   |   int main(void)
+   |   {
+   |      NodePointer L = null;           /* Let L be a pointer to a list node, */
+   |                                                          /* initially null */
+60 |      InitializationForLists(); /* execute the list initialization function */
+   |   
+   |      /* Create a list L pointing to (DUS, ORD, SAN) */
+   |         InsertNewFirstNode("SAN",&L);
+   |         InsertNewFirstNode("ORD",&L);
+65 |         InsertNewFirstNode("DUS",&L);
+   |   
+   |      /* Print the List */
+   |         PrintList(L);                            /* prints (DUS, ORD, SAN) */
+   |
+70 |      /* Now, reverse the list L */
+   |         Reverse(&L);
+   |   
+   |      /* Print the list L again to show the change */
+   |         PrintList(L);                            /* prints (SAN, ORD, DUS) */
+75 |   }
+
+Program 4.29 Alternative Main Program Section
+
+/*********************************************************************************/
+

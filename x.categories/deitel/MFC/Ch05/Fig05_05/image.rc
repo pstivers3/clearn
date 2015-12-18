@@ -1,0 +1,5 @@
+// Fig. 5.5: image.rc
+// bitmap image resource file
+
+// bitmap name BITMAP file name
+COOL_BMP BITMAP cool.bmp

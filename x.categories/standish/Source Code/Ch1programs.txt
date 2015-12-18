@@ -1,0 +1,77 @@
+
+/**********************************************************************************/
+/*                                                                                */
+/*                         C Programs from Chapter 1 of                           */
+/*            Data Structures, Algorithms and Software Principles in C            */
+/*                             by Thomas A. Standish                              */
+/*                                                                                */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved         */
+/*                                                                                */
+/**********************************************************************************/
+
+
+/**********************************************************************************/
+
+
+   |   #define MaxIndex 100
+   |
+   |   int Find(int A[])                    /* Find operates on integer arrays, A */
+   |   {   
+ 5 |      int j;                     /* j is an index variable used in the search */
+   |   
+   |      for (j = 0; j<MaxIndex; ++j){   /* search upward starting at position 0 */
+   |         if (A[j] < 0) {                               /* if A[j] is negative */
+   |            return j;                     /* return its index j as the result */
+10 |         }
+   |      }
+   |      
+   |      return -1;               /* return -1 if no negative integers were found*/
+   |   }
+15 |
+   |   int main(void)
+   |   {      
+   |      int   A[MaxIndex];                   /* declare A to be an integer array*/
+   |      int   i;          /* let i be an index variable used for initialization */
+20 |   
+   |     /* Initialize array A to squares of integers. Then make A[17] negative. */
+   |      for ( i = 0; i < MaxIndex; ++i ) A[i] = i*i;   
+   |      A[17] = - A[17];
+   |
+25 |     /* Print test results */
+   |      printf("First negative integer in A found at index = %2d.\n",Find(A));
+   |   }
+
+Program 1.3 Finding the First Negative Integer in an Integer Array
+
+/**********************************************************************************/
+
+
+      |   int Find(SearchArray A)
+      |   {
+      |      int i = 0;
+      |
+    5 |      while ((A[i] >= 0) && (i < MaxIndex)) {
+      |         ++i;
+      |      }
+      |      
+      |      return (i < MaxIndex) ? i : -1;
+   10 |   }
+
+Program for Exercise 1 on page 21
+
+/**********************************************************************************/
+
+
+      |   int Find( int A[ ] )
+      |   {   
+      |      int i, result;
+      |
+    5 |      result = -1;
+      |      for (i = MaxIndex-1; i >= 0; --i) if (A[i] < 0) result = i;
+      |      return result;
+      |   }
+
+
+Program for Exercise 2 on page 21
+
+/**********************************************************************************/

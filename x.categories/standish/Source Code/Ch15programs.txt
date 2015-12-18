@@ -1,0 +1,1164 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 15 of                         */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+      typedef  struct {
+                  int  left, top, right, bottom;
+               }Rect;
+
+Figure 15.4 A Typedef for a Rectangle in C
+
+/*********************************************************************************/
+
+
+   |   class TClassX:public TClassY {
+   |   
+   |      public:
+   |      (function prototypes for the methods of TClassX)
+ 5 |   
+   |      protected:
+   |      (data members declaring the instance variables of TClassX)
+   |   };
+
+Figure 15.6  Format for Class Definitions
+
+/*********************************************************************************/
+
+
+   |   // ------------< begin Shapes.h header file >------------ //
+   |
+   |   //  Shapes.h defines an abstract base class TShape and three derived 
+   |   //  subclasses: TRectangle, TOval, and TRoundedRectangle.
+ 5 |   
+   |   class TShape {
+   |
+   |      public:
+   |      // SetEnclosingRect sets the coordinates of the EnclosingRectangle.
+10 |         void SetEnclosingRect (int x1, int y1, int x2, int y2);
+   |   
+   |      // Calling the Draw() method draws the shape. Each derived subclass 
+   |      // must give its own customized definition of the virtual Draw() method.
+   |         virtual void Draw();
+15 |      
+   |      protected:
+   |      Rect EnclosingRectangle;         // The rectangle that encloses the shape
+   |   
+   |   };
+20 |   
+   |   class TRectangle:public TShape {
+   |      public: void Draw();
+   |   };
+   |
+25 |   class TOval:public TShape {
+   |      public: void Draw();
+   |   };
+   |
+   |   class TRoundedRectangle:public TShape {
+30 |      public: void Draw();
+   |   };
+   |
+   |   // ------------< end-of-file Shapes.h >------------ //
+   |   // ------------< begin file Shapes.c >------------- //
+35 |
+   |   #include "Shapes.h"
+   |
+   |   void TShape::SetEnclosingRect(int x1, int y1, int x2, int y2)
+   |   {                     
+40 |      EnclosingRectangle.top = 100 - y1;     // transform to a normal Cartesian
+   |      EnclosingRectangle.left = 150 + x1;             // coordinate system with
+   |      EnclosingRectangle.bottom = 100 - y2;      // origin at (x,y) = (100,150)
+   |      EnclosingRectangle.right = 150 + x2;             // in the Drawing Window
+   |   }
+45 |
+   |   void TShape::Draw()
+   |   {
+   |      printf("Impossible call on virtual Draw method of TShape.\n");
+   |   }
+50 |
+   |   void TRectangle::Draw()
+   |   {
+   |      FrameRect(&EnclosingRectangle);
+   |   }
+55 |
+   |   void TOval::Draw()
+   |   {
+   |      FrameOval(&EnclosingRectangle);
+   |   }
+60 |
+   |   void TRoundedRectangle::Draw()
+   |   {
+   |      FrameRoundRect(&EnclosingRectangle, 20, 20);
+   |   }
+65 |
+   |   // ------------< end-of-file Shapes.c >------------ //
+
+Program 15.7 Shapes Module
+
+/*********************************************************************************/
+
+
+   |   //      First Stage Example of Shape Drawing
+   |   //      to draw three kinds of hollow shapes
+   |   
+   |   #include <stdio.h>
+ 5 |   #include <string.h>
+   |   # include "Shapes.h"
+   |
+   |   // assume that typedef enum {false, true} Boolean; has been given
+   |
+10 |   Boolean UserDesignatesShape(TShape **theShape)
+   |   {
+   |      char *reply = "            ";
+   |
+   |      printf("Designate one of: Q)uit, O)val, R)ectangle,\n");
+15 |      printf(" RR)oundedRectangle: ");
+   |      gets(reply);                          // get a reply string from the user
+   |   
+   |      if ( (reply[0] == 'Q') || (reply[0] == 'q') ) {
+   |         return false;
+20 |      } else {
+   |         switch (reply[0]) {
+   |            case 'O': case 'o':   *theShape = new TOval; 
+   |                                  return true;
+   |            case 'R': case 'r':   if (strlen(reply) == 1) {
+25 |                                     *theShape = new TRectangle;
+   |                                  } else {      // if (reply[2] is 'R' or  'r')
+   |                                     *theShape = new TRoundedRectangle;
+   |                                  } 
+   |                                  return true;
+30 |            default:              *theShape = NULL; return true;
+   |         }
+   |      }
+   |   }
+   |
+35 |   void DrawCoordinateSystem()                               // details omitted
+   |   {
+   |      // Draws x-axis, y-axis, origin and boundaries of coordinate system
+   |   }
+   |
+40 |   int main()
+   |   {
+   |      TShape   *theShape;
+   |      short   x1, y1, x2, y2;
+   |
+45 |      SetUpWindows();             // displays Console Window and Drawing Window
+   |      DrawCoordinateSystem();           // draws x and y axes in Drawing Window
+   |
+   |      while (UserDesignatesShape(&theShape)) {
+   |         if (theShape == NULL) {
+50 |            printf("unknown shape\n");
+   |         } else {
+   |            printf("Give Coordinates of Enclosing Rectangle: \n");
+   |            printf("left top right bottom: ");
+   |            scanf("%hd%hd%hd%hd", &x1, &y1, &x2, &y2);
+55 |            theShape->SetEnclosingRect(x1, y1, x2, y2);
+   |            theShape->Draw();
+   |         }
+   |      }
+   |
+60 |   }
+   |
+
+Program 15.8 First Stage Example of Shape Drawing
+
+/*********************************************************************************/
+
+
+   |   class TFilledOval:public TOval {
+   |      public:
+   |         void Draw();
+   |   }
+
+Program 15.14 Derived Class for TFilledOval
+
+/*********************************************************************************/
+
+
+   |   void TFilledOval::Draw()
+   |   {
+   |      FillOval(&EnclosingRectangle, LtGray);
+   |      TOval::Draw();                          Ê    // call Draw method of TOval
+   |   }
+
+Program 15.15 Implementation of Draw Method for TFilledOval
+
+/*********************************************************************************/
+
+
+   |
+   |   class TFilledRectangle:public TRectangle  {
+   |      public: void Draw();
+35 |   };
+   |
+   |   class TFilledOval:public TOval  {
+   |      public: void Draw();
+   |   };
+40 |
+   |   class TFilledRoundedRectangle:public TRoundedRectangle  {
+   |      public: void Draw();
+   |   };
+   |
+
+Program 15.17 Filled Shape Class Declarations
+
+/*********************************************************************************/
+
+
+   |
+   |   void TFilledRectangle::Draw()
+   |   {
+   |      FillRect(&EnclosingRectangle, LtGray);
+   |      TRectangle::Draw();                     // call Draw method of TRectangle
+70 |   }
+   |
+   |   void TFilledOval::Draw()
+   |   {
+   |      FillOval(&EnclosingRectangle, LtGray);
+75 |      TOval::Draw();                               // call Draw method of TOval
+   |   }
+   |
+   |   void TFilledRoundedRectangle::Draw()
+   |   {
+80 |      FillRoundRect(&EnclosingRectangle, 20, 20, LtGray);
+   |      TRoundedRectangle::Draw();                         // call Draw method of
+   |   }                                                       // TRoundedRectangle
+   |
+
+Program 15.18 Filled Shape Draw Method Implementations
+
+/*********************************************************************************/
+
+
+   |   // ------------< begin file ShapeList.h >------------ //
+   |
+   |   class TList                               // define the ShapeList base class
+   |   {
+ 5 |      public:
+   |         void InitShapeList();                     // initialize the Shape List
+   |         void Append (TShape *theShape);
+   |         void Move(int deltaX, int deltaY);
+   |         void Draw();
+10 |         Boolean IsNonEmpty();
+   |
+   |      private:
+   |         TShape  *Shape;
+   |         TList   *Link;
+15 |   };
+   |
+   |   // ------------< end-of-file ShapeList.h >------------ //
+   |
+   |   // ------------< begin file ShapeList.c >------------ //
+20 |   
+   |   #include "Shapes.h"
+   |   #include "ShapeList.h"
+   |
+   |   void TList::InitShapeList();
+25 |   {
+   |      Shape = NULL;          // Convention: A list node with a NULL Shape is an
+   |      Link = NULL;       // empty list awaiting a non-null Shape to be assigned
+   |   }
+   |
+30 |   void TList::Append (TShape *theShape)                  // to add a new shape
+   |   {                                              // to the end of a shape list
+   |      TList *LastNode, *NewNode;
+   |
+   |      if (Shape == NULL) {          // overwrite an "empty" shape with theShape
+35 |         Shape = theShape;                         // to fill in the empty slot
+   |      } else {
+   |         NewNode = new  TList;                        // create a new list node
+   |         NewNode->Shape = theShape;                     // store theShape in it
+   |         NewNode->Link = NULL;               // and link it onto the end of the
+40 |         LastNode = this;                                         // shape list
+   |         while (LastNode->Link != NULL)  LastNode = LastNode->Link;
+   |         LastNode->Link = NewNode;
+   |      }
+   |   }
+45 |   void TList::Move(int deltaX, int deltaY)               // sends Move message
+   |   {                                               // to each Shape in the list
+   |      TList  *TempNode;
+   |      TShape *theShape;
+   |
+50 |      TempNode = this;
+   |
+   |      while (TempNode != NULL)  {
+   |         theShape = TempNode->Shape;            // extract Shape from list node
+   |         theShape->Move(deltaX, deltaY);         // call theShape's Move method
+55 |         TempNode = TempNode->Link;             // advance to next node on list
+   |      }
+   |   }
+   |
+   |   void TList::Draw()
+60 |   {   
+   |      TList  *TempNode;
+   |   
+   |      TempNode = this;
+   |
+65 |      while (TempNode != NULL) {                       // send the Draw message
+   |         TempNode->Shape->Draw();                  // to each shape on the list
+   |         TempNode = TempNode->Link;             // advance to next node on list
+   |      }
+   |   }
+70 |
+   |   Boolean TList::IsNonEmpty()                               // a NULL Shape in
+   |   {                                           // the first list node signifies
+   |      return (Shape != NULL);                   // an empty list, by convention
+   |   }
+75 |
+   |   // ------------<end-of-file ShapeList.c >------------ //
+
+Program 15.19 The Shape List Module
+
+/*********************************************************************************/
+
+
+   |   // ------------< begin Shapes.h header file >------------ //
+   |
+   |   class TShape {                   // the abstract class from which all actual
+   |                                               // Shape classes are derivatives
+ 5 |      public:
+   |         void SetEnclosingRect (int x1, int y1, int x2, int y2);
+   |         virtual void Draw();
+   |         void Move(int deltaX, int deltaY);
+   |
+10 |      protected:
+   |         Rect EnclosingRectangle;                // the rectangle that encloses
+   |   };                                                              // the shape
+   |
+   |   class TRectangle:public TShape {
+15 |      public: void Draw();
+   |   };
+   |
+   |   class TOval:public TShape {
+   |      public: void Draw();
+20 |   };
+   |
+   |   class TRoundedRectangle:public TShape {
+   |      public: void Draw();
+   |   };
+25 |
+   |   class TFilledRectangle:public TRectangle {
+   |      public: void Draw();
+   |   };
+   |
+30 |   class TFilledOval:public TOval {
+   |      public: void Draw();
+   |   };
+   |
+   |   class TFilledRoundedRectangle:public TRoundedRectangle {
+35 |      public: void Draw();
+   |   };
+   |
+   |   // ------------<end-of-file Shapes.h >------------ //
+   |
+40 |   // ------------<begin file Shapes.c >------------ //
+   |   
+   |   #include "Shapes.h"
+   |
+   |   void TShape::SetEnclosingRect(int x1, int y1 ,int x2, int y2)
+45 |   {                                                   // transform to a normal
+   |         SetEnclosingRect.top = 100 - y1;               // Cartesian coordinate
+   |         SetEnclosingRect.left = 150 + x1;             // system with origin at
+   |         SetEnclosingRect.bottom = 100 - y2;            // (x,y) = (150,100) in
+   |         SetEnclosingRect.right = 150 + x2;               // the Drawing Window
+50 |   }
+   |   void TShape::Move(int deltaX, int deltaY)
+   |   {
+   |         EnclosingRectangle.top -= deltaY;      // deltaY is subtracted because
+   |         EnclosingRectangle.left += deltaX;        // the coordinate system for
+55 |         EnclosingRectangle.bottom -= deltaY;           // the built-in drawing
+   |         EnclosingRectangle.right += deltaX;         // routines is upside-down
+   |   }
+   |
+   |   void TShape::Draw()
+60 |   {
+   |      printf("Impossible call on virtual Draw method of TShape.\n");
+   |   }
+   |
+   |   void TRectangle::Draw()
+65 |   {
+   |      FrameRect(&EnclosingRectangle);
+   |   }
+   |
+   |   void TOval::Draw()
+70 |   {
+   |      FrameOval(&EnclosingRectangle);
+   |   }
+   |
+   |   void TRoundedRectangle::Draw()
+75 |   {
+   |      FrameRoundRect(&EnclosingRectangle, 20, 20);
+   |   }
+   |
+   |   void TFilledRectangle::Draw()
+80 |   {
+   |      FillRect(&EnclosingRectangle, LtGray);
+   |      TRectangle::Draw();                     // call Draw method of TRectangle
+   |   }
+   |
+85 |   void TFilledOval::Draw()
+   |   {
+   |      FillOval(&EnclosingRectangle, LtGray);
+   |      TOval::Draw();                               // call Draw method of TOval
+   |   }
+90 |
+   |   void TFilledRoundedRectangle::Draw()
+   |   {
+   |      FillRoundRect(&EnclosingRectangle, 20, 20, LtGray);
+   |      TRoundedRectangle::Draw();                         // call Draw method of
+95 |   }                                                       // TRoundedRectangle
+   |
+   |
+   |   // ------------< end-of-file Shapes.c >------------ // 
+
+Program 15.20 Final Version of the Shapes Module
+
+/*********************************************************************************/
+
+
+   |   //   Final Stage 3 Shape Drawing Program
+   |
+   |   #include <stdio.h>
+   |   #include <string.h>
+ 5 |   #include "Shapes.h"
+   |   #include "ShapeList.h"
+   |   
+   |      TList  *theShapeList;     // global variable that contains the Shape list
+   |
+10 |   void MoveShapes()
+   |   {   
+   |      short deltaX, deltaY;
+   |   
+   |      if ( theShapeList->IsNonEmpty() ) {                // move shapes only if
+15 |         printf("deltaX deltaY:");                              // theShapeList
+   |         scanf("%hd%hd", &deltaX, &deltaY);                      // is nonempty
+   |         theShapeList->Move(deltaX, deltaY);
+   |         theShapeList->Draw();
+   |      }
+20 |   }
+   |
+   |   Boolean UserDesignatesShape(TShape **theShape)
+   |   {
+   |      char *reply = "          "; // blank string to store user's reply to prompt
+25 |      int   ReplyLength;
+   |   
+   |    while (1) {
+   |      printf("Designate one of: Q = Quit, M = Move shapes, HO = Hollow Oval,\n");
+   |      printf("FO = Filled Oval, HR = Hollow Rectangle, FR = Filled Rectangle,\n");
+30 |      printf("HRR = Hollow Rounded Rectangle,FRR = Filled Rounded Rectangle:");
+   |      gets(reply);
+   |      ReplyLength = strlen(reply);
+   |   
+   |      if ( (reply[0] == 'Q') || (reply[0] == 'q') ) { 
+35 |         return false;
+   |      } else if ( (reply[0] == 'M') || (reply[0] == 'm') ) {         // if user
+   |         MoveShapes();                 // gave 'M' then move the list of shapes
+   |         *theShape = NULL;
+   |         return true;                                       // stay in the loop
+40 |      } else {
+   |         switch (reply[1]) {
+   |         case 'O': case 'o': if ((reply[0] == 'H') || (reply[0] == 'h')) {
+   |                                *theShape = new TOval;           // treat cases
+   |                             } else {          // for hollow and filled ovals
+45 |                                *theShape = new TFilledOval;
+   |                             }
+   |                             return true;
+   |         case 'R': case 'r': if (ReplyLength < 3) {        // then had HR or FR
+   |                                if ((reply[0] == 'H') || (reply[0] == 'h')) {
+50 |                                   *theShape = new TRectangle;
+   |                                } else {
+   |                                   *theShape = new TFilledRectangle;
+   |                                }
+   |                             } else {    // had HRR or FRR if length(reply) >=3
+55 |                                if ((reply[0] == 'H') || (reply[0] == 'h')) {
+   |                                   *theShape = new TRoundedRectangle;
+   |                                } else {   
+   |                                   *theShape = 
+   |                                      new TFilledRoundedRectangle;
+60 |                                }
+   |                             }
+   |                             return true;                   // stay in the loop
+   |         default:            *theShape = NULL;
+   |                             return true;                   // stay in the loop
+65 |         }                                                        // end switch
+   |      }                                                               // end if
+   |   
+   |     }                                                             // end while
+   |   }                                                 // end UserDesignatesShape
+70 |   
+   |   void DrawCoordinateSystem()                               // details omitted
+   |   {
+   |      // Draws x-axis, y-axis, origin and boundaries of coordinate system
+   |   }
+75 |
+   |   int main()
+   |   {
+   |      TShape  *theShape;
+   |      short   x1, y1, x2, y2;
+80 |
+   |      SetUpWindows();            // displays a Text Window and a Drawing Window
+   |      DrawCoordinateSystem();           // draws x and y axes in Drawing Window
+   |   
+   |      theShapeList = new TList;                 // create a new shape list node
+85 |      theShapeList->InitShapeList();   // initialize it to designate the empty list
+   |
+   |      while (UserDesignatesShape(&theShape)) {
+   |         if (theShape != NULL) {      // user neither moved shape list nor gave
+   |                                                  // unknown shape code letters
+90 |            printf("Give Coordinates of Enclosing Rectangle: \n");
+   |            printf("left top right bottom: ");
+   |            scanf("%hd%hd%hd%hd", &x1, &y1, &x2, &y2);
+   |            theShape->SetEnclosingRect(x1, y1, x2, y2);
+   |            theShape->Draw();
+95 |            theShapeList->Append(theShape);
+   |
+   |         }
+   |      }
+   |   }
+
+Program 15.21 Final Stage-3 Shape Drawing Program
+
+/*********************************************************************************/
+
+
+/*********
+*
+*     The following programs are the complete executable C++ 
+*     programs for the Third Stage Shape Drawing Example of Program 15.20
+*
+*********/
+
+
+/*****
+*
+*     The following is the Window Utilities header file "windowUtils.h"
+*     modified from the Symantec Corporation's Macintosh C++ header files
+*     to draw the coordinate system in a properly sized Darwing Window
+*     suitable for the Stage-3 Shape Drawing Program
+*
+*****/
+
+void  SetUpWindows (void);
+void  Prompt (char *string);
+void  GetStr(char *string, char *reply);
+char  GetCh (char *string);
+short GetNum(char *string);
+void  DrawCoordinateSystem(void);
+
+/*****
+*
+*     The following is the Window Utilities source file "windowUtils.c"
+*     modified from the Symantec Corporation's Macintosh C++ utility files
+*     to set up and draw the coordinate system in a resized Drawing Window.
+*
+*****/
+ 
+ #include <stdio.h>
+ #include <console.h>
+ #include <QuickDraw.h>
+ #include "windowUtils.h"
+ 
+WindowPtr   DrawingWindow;
+
+/****
+ *   SetUpWindows
+ *
+ *   Set up the windows so the console window
+ *   is just big enough to handle a line of input.
+ *   Then make a Macintosh window that we can use
+ *   to draw some shapes in.
+ *
+ ****/
+
+void SetUpWindows (void)
+
+{
+   Rect   drawingWindowPosition = {115, 10, 320, 328};
+
+      //   Change some aspects of the default
+      //   console window: its size and its title.
+      //
+      //   Also, let the console package know that
+      //   we want to program to exit when we're
+      //   finished.
+
+   console_options.top = 40;
+   console_options.left = 10;
+   console_options.title = "\pConsole Window";
+   console_options.nrows = 4;
+   console_options.ncols = 80;
+   console_options.pause_atexit = 0;
+   
+      //   cshow() initializes the console
+      //   package and displays the console window.
+
+   cshow(stdout);
+
+      //   Now create a Macintosh window. Note that
+      //   its position is fixed and that it cannot
+      //   be moved.
+
+   DrawingWindow = NewWindow(NULL, &drawingWindowPosition,
+                        "\pDrawing Window", TRUE, noGrowDocProc,
+                        (GrafPort *)-1L, FALSE, 0L);
+}
+/* end SetUpWindows */
+
+
+/****
+ *   Prompt
+ *
+ *   Put a prompt string on the first line of the console window.
+ *
+ ****/
+
+void Prompt (char *string)
+
+{
+   /* cgotoxy(1,1,stdout); */
+   printf("%s: ", string);
+   ccleol(stdout);
+}
+/* end Prompt */
+
+
+/****
+ *   GetCh
+ *
+ *   Get a character from the console window.
+ *
+ ****/
+
+char GetCh (char *string)
+
+{
+   short   theChar;
+   
+   if (string)
+      Prompt(string);
+
+   theChar = getchar();
+   fflush(stdin);            /* ignore any additional characters in input buffer */
+   
+   return theChar;
+}
+/* end GetCh */
+
+
+/****
+ *   GetStr
+ *
+ *   Get a string from the console window.
+ *
+ ****/
+
+void GetStr (char *string, char *reply)
+
+{
+   
+   if (string)
+      Prompt(string);
+
+   gets(reply);
+   fflush(stdin);            /* ignore any additional characters in input buffer */
+   
+}
+/* end GetStr */
+
+
+/****
+ *
+ *   GetNum -- Get an integer from the console window.
+ *
+ ****/
+
+short   GetNum (char *string)
+
+{
+   short      theInt;
+
+   while (1) {
+      if (string)
+         Prompt(string);
+   
+      if (scanf("%hd", &theInt) == 1)
+         return theInt;
+
+      fflush(stdin);     /* get rid of any additional characters in input buffer */
+   }
+}
+/* end GetNum */
+
+/****
+ *
+ * InitMacintosh()
+ *
+ * Initialize the relevant Macintosh managers and the heap memory
+ *
+ ****/
+
+void InitMacintosh(void)
+
+{
+   MaxApplZone();
+   
+   InitGraf(&thePort);
+   InitFonts();
+   FlushEvents(everyEvent, 0);
+   InitWindows();
+   InitMenus();
+   TEInit();
+   InitDialogs(0L);
+   InitCursor();
+
+}
+/* end InitMacintosh */
+
+
+/****
+ *  DrawCoordinateSystem
+ *
+ *  Draws Coordinate System in Drawing Window
+ *
+ *  This gives the details omitted on page 636 
+ *  on lines 72 to 74 in Program 15.21.
+ *
+ ****/
+
+void DrawCoordinateSystem(void)
+{
+
+   int i,j;
+   Rect Rectangle;
+   
+   InitMacintosh();
+   SetPort(DrawingWindow);
+   SetRect(&Rectangle, 2, 2, 298, 198);
+   PenPat(gray);
+   TextFont(9);
+   TextSize(9);
+   FrameRect(&Rectangle);                                         /* draw border */
+   Rectangle.right = 150;
+   FrameRect(&Rectangle);                                         /* draw y-axis */
+   Rectangle.right = 298;
+   Rectangle.bottom = 100;
+   FrameRect(&Rectangle);                                         /* draw x-axis */
+   PenNormal();
+   MoveTo(152, 110);
+   DrawString("\p(0,0)");
+   MoveTo(265, 110);
+   DrawString("\px-axis");
+   MoveTo(270, 96);
+   DrawString("\p+150");
+   MoveTo(5, 96);
+   DrawString("\p-150");
+   MoveTo(124, 12);
+   DrawString("\p+100");
+   MoveTo(124, 196);
+   DrawString("\p-100");
+   MoveTo(152, 12);
+   DrawString("\py-axis");
+
+}
+/* end DrawCoordinateSystem */
+
+
+
+///////
+//
+//    The following is the "ShapeList.h" header file
+//
+//////
+
+
+
+// define the Shape List base class
+
+class TList
+{
+
+  public:
+  
+   TShape  *Shape;   
+   TList   *Link;
+
+    void InitShapeList(void);
+    void Append(TShape *theShape);
+    void Move(int deltaX, int deltaY);
+    void Draw(void);
+    Boolean IsNonEmpty(void);
+};
+
+//////
+//
+//    The following is the "Shapes.c" file which contains
+//    the implementations of TShape methods.
+//
+//////
+
+#include <oops.h>
+#include "Shapes.h"
+
+extern   WindowPtr   DrawingWindow;                        // The drawing window is
+                                                        // defined in windowUtils.c
+
+//
+//   Set the bounding rectangle of the shape
+//
+
+
+void TShape::SetEnclosingRect (short x1, short y1, short x2, short y2)
+{
+   EnclosingRectangle.top    = 100 - y1;
+   EnclosingRectangle.left   = 150 + x1;
+   EnclosingRectangle.bottom = 100 - y2;
+   EnclosingRectangle.right  = 150 + x2;
+}
+
+void TShape::Move(int deltaX, int deltaY)
+{
+   EnclosingRectangle.top    -= deltaY;
+   EnclosingRectangle.left   += deltaX;
+   EnclosingRectangle.bottom -= deltaY;
+   EnclosingRectangle.right  += deltaX;
+}
+
+
+// The Draw() method is a virtual method that should be
+// overridden by individual customized Draw() methods in
+// each derivative Shape subclass
+
+void TShape::Draw (void)
+{
+   SetPort(DrawingWindow);
+}
+
+
+// The TRectangle::Draw() method calls its ancestral inherited Draw()
+// to set the port to the drawing window and then draws a wire frame
+// shape for a rectangle. 
+
+void TRectangle::Draw (void)
+{
+   inherited::Draw();
+   FrameRect(&EnclosingRectangle);
+   
+}
+
+//   TOval::Draw
+ 
+void TOval::Draw (void)
+{
+   //inherited::Draw();
+   TShape::Draw();
+   FrameOval(&EnclosingRectangle);
+}
+
+
+//   TRoundedRectangle::Draw
+ 
+void TRoundedRectangle::Draw (void)
+{
+   //inherited::Draw();
+   TShape::Draw();
+   FrameRoundRect(&EnclosingRectangle,20,20);
+}
+
+//  TFilledRectangle::Draw
+
+void TFilledRectangle::Draw (void)
+{
+   FillRect(&EnclosingRectangle,ltGray);
+   inherited::Draw();
+}
+
+// TFilledOval::Draw
+ 
+void TFilledOval::Draw (void)
+{
+   FillOval(&EnclosingRectangle,ltGray);
+   inherited::Draw();
+}
+
+
+//  TFilledRoundedRectangle::Draw
+ 
+void TFilledRoundedRectangle::Draw (void)
+{
+   FillRoundRect(&EnclosingRectangle,20,20,ltGray);
+   inherited::Draw();
+}
+
+
+
+//////
+//
+//    The following is the "ShapeList.h" header file
+//
+//////
+
+
+
+// define the Shape List base class
+
+class TList
+{
+
+  public:
+  
+    TShape *Shape;
+    TList  *Link;
+
+    void InitShapeList(void);
+    void Append(TShape *theShape);
+    void Move(int deltaX, int deltaY);
+    void Draw(void);
+    Boolean IsNonEmpty(void);
+};
+
+
+
+///////
+//
+//  The following is the "ShapeList.c"  C++ source file
+//
+///////
+
+
+#include <oops.h>
+#include "Shapes.h"
+#include "ShapeList.h"     
+
+    extern  WindowPtr DrawingWindow;                       // The drawing window is
+                                                        // defined in windowUtils.c
+
+   void TList::InitShapeList(void)
+   {
+      Shape = NULL;                   // Convention: A list node with NULL shape is
+      Link  = NULL;       // an empty node awaiting a non-null Shape to be assigned
+   }
+
+   void TList::Append (TShape *theShape)
+    {
+      TList *LastNode, *NewNode;
+   
+      if (Shape == NULL) { // overwrite an "empty" shape with theShape to fill in the empty slot
+         
+         Shape = theShape;
+      
+      } else {
+         
+         NewNode = new TList;
+         NewNode->Shape = theShape;
+         NewNode->Link = NULL;
+         LastNode = this;
+         while (LastNode->Link != NULL) {
+               LastNode = LastNode->Link;
+         }
+         LastNode->Link = NewNode;
+      }
+   } // end TList::Append
+
+   void  TList::Move(int deltaX, int deltaY)          // calls Move(deltaX, DeltaY)
+                                                // method on each Shape in the list
+   {
+      TList  *TempNode;
+      TShape *theShape;
+   
+      TempNode = this;
+      
+      while (TempNode != NULL) {
+         
+         theShape = TempNode->Shape;
+         theShape->Move(deltaX, deltaY);             // call theShape's move method
+                                                 //   to move it by (deltaX,deltaY)
+         TempNode = TempNode->Link;                 // advance to next node on list
+      }
+      
+   } // end TList::Move
+
+
+   void TList::Draw(void)
+   {
+      TList *TempNode;
+   
+      TempNode = this;
+      while (TempNode != NULL) {
+         
+         TempNode->Shape->Draw();          // send the Draw message to the shape in
+                                              // the node's Shape instance variable
+         TempNode = TempNode->Link;                 // advance to next node on list
+      }
+   } //end TList::Draw
+
+   Boolean TList::IsNonEmpty(void)
+   {
+      return (Shape != NULL);                     // a NULL Shape in the first list
+                                     // node signifies an empty list, by convention
+   } // end TList.IsNonEmpty
+
+/////
+//
+//  The complete final Stage 3 Drawing Program in C++ for Chapter 15 of "Data ,
+//  Structures, Algorithms, and Software Principles in C," (given in Program 15.21
+//  in abbreviated form with some details missing) is given below in its entirety.
+//
+/////
+ 
+ 
+#include <stdio.h>
+#include <string.h>
+#include <oops.h>
+#include "windowUtils.h"
+#include "Shapes.h"
+#include "ShapeList.h"
+
+ 
+// Global variable that contains the shape list
+
+    TList *theShapeList;
+
+// Prompts user to give (deltaX, deltaY) move increments and
+// calls Move method for theShapeList to move the entire list
+// of shapes.
+
+void MoveShapes(void)
+{
+  short deltaX, deltaY;
+  
+  if (theShapeList->IsNonEmpty()) {
+      fflush(stdin);
+      printf("deltaX deltaY: ");
+      scanf("%hd%hd", &deltaX,&deltaY);
+      fflush(stdin);
+
+      theShapeList->Move(deltaX,deltaY);
+      theShapeList->Draw();
+  }
+}
+
+//////
+//
+//  UserDesignatesShape prompts the user for a shape type,
+//  creates a pointer to a shape instance of that type, 
+//  and returns the shape pointer.
+//
+//////
+
+static Boolean UserDesignatesShape (TShape **theShape)
+{
+   char    *reply = "         ";
+   int     ReplyLength;
+
+   while (1) {
+      
+      printf("Designate one of: Q = Quit; M = Move shapes, HO = Hollow Oval,\n");
+      printf("FO = Filled Oval, HR = Hollow Rectangle, FR = Filled Rectangle,\n");
+      printf("HRR = Hollow Rounded Rectangle, FRR = Filled Rounded Rectangle: ");
+        
+      fflush(stdin);
+      gets(reply);  
+      
+      
+      ReplyLength = strlen(reply);
+      /* printf("the reply of length |%d| was |%s%|\n",ReplyLength,reply); */
+      
+      
+        if ((reply[0] == 'Q') || (reply[0] == 'q')) {
+           return false;
+        
+        
+        } else if ((reply[0] == 'M') || (reply[0] == 'm')) {
+            MoveShapes();
+            *theShape = NULL;
+            return true;    // stay in the loop
+        
+        
+        } else {
+            switch(reply[1]) {
+                case 'O':
+                case 'o': if ((reply[0] == 'H') || (reply[0] == 'h')) {
+                             *theShape = new TOval;
+                          } else {
+                             *theShape = new TFilledOval;
+                          }
+                          return true;                          // stay in the loop
+
+                case 'R':
+                case 'r':  if (ReplyLength < 3) {
+                                if ((reply[0] == 'H') || (reply[0] == 'h')) {
+                                   *theShape = new TRectangle;
+                                } else {
+                                   *theShape = new TFilledRectangle;
+                                }
+                           } else {
+                                if ((reply[0] == 'H') || (reply[0] == 'h')) {
+                                   *theShape = new TRoundedRectangle;
+                                } else {
+                                   *theShape = new TFilledRoundedRectangle;
+                                }
+                           }
+                           return true;                         // stay in the loop
+                default:   *theShape = NULL;
+                           return true;                         // stay in the loop
+            }  // end switch
+        
+        } // end if
+      
+      
+   } // end while
+   
+} // end UserDesignatesShape
+
+//////
+//
+//  The main() function initializes the system, prompts the user
+//  for instructions to create, draw, and move shapes and shapelists,
+//  and terminates the session when the user designates the "quit"
+//  instruction code.
+//
+//////
+
+int main( void)
+{
+   TShape *theShape;
+   short   x1, y1, x2, y2;
+
+   SetUpWindows();
+   DrawCoordinateSystem();
+   
+   theShapeList = new TList;
+   theShapeList->InitShapeList();
+
+   while (UserDesignatesShape(&theShape)) {
+   
+       if (theShape == NULL) {
+       
+          ; // user moved shape list or gave unknown shape code letters
+          
+       } else {
+          printf("left top right bottom: ");
+          scanf("%hd%hd%hd%hd", &x1,&y1,&x2,&y2);
+          fflush(stdin);
+           
+          theShape->SetEnclosingRect(x1, y1, x2, y2);
+          theShape->Draw();
+          theShapeList->Append(theShape);
+      }
+    }
+    
+    return(0);
+}
+
+/*********************************************************************************/
+

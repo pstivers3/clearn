@@ -1,0 +1,159 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 6 of                          */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   |   void SelectionSort(InputArray A)
+   |   {
+   |
+   |      int   MinPosition, temp, i, j;
+ 5 |
+   |      for (i = n - 1; i > 0; --i) {
+   |   
+   |         MinPosition = i;
+   |   
+10 |         for( j = 0; j < i; ++i) {
+   |      
+   |            if (A[j] < A[MinPosition]) {
+   |               MinPosition = j;
+   |            }
+15 |
+   |         }
+   |   
+   |         temp = A[i]; A[i] = A[MinPosition]; A[MinPosition] = temp;
+   |   
+20 |      }
+   |   }
+
+Program 6.1 Selection Sorting Algorithm for Sorting A[0:n-1]
+
+/*********************************************************************************/
+
+
+   |   /*   
+   |    *   Function to search in a SearchArray A for an occurrence of a key K
+   |    */
+   |   
+ 5 |   #define  n          100                                    /* or whatever */
+   |   typedef  arbitrary  Key;               /* the Key's type can be arbitrary */
+   |   typedef  Key        SearchArray[n];
+   |
+   |
+10 |   int SequentialSearch(Key K, SearchArray A)
+   |   {
+   |      
+   |      int i:                   /* i indexes successive locations, A[i], in A */
+   |
+15 |      for (i = 0; i < n; ++i) {       /* enumerate successive positions A[i] */
+   |      
+   |         if (K == A[i]) {                          /* if A[i] contains key K */
+   |    
+   |            return i;        /* return i as the position of key K in array A */
+20 |   
+   |         }
+   |
+   |       }
+   |                              /* if the entire array A was scanned and key K */
+25 |      return (-1);          /* was not found, then return -1 for "not found" */
+   |   
+   |   }
+
+Program 6.15 Sequential Searching
+
+/*********************************************************************************/
+
+
+   |   void SelectionSort(InputArray A)
+   |   {
+   |      int MinPosition, temp, i, j;
+   |
+ 5 |      for(i = n - 1; i > 0; --i) {
+   |         MinPosition = i;
+   |         for( j = 0; j < i; ++j) {
+   |            if (A[j] < A[MinPosition]) MinPosition = j;
+   |         }
+10 |         temp = A[i]; A[i] = A[MinPosition]; A[MinPosition] = temp;
+   |      }
+   |   }
+
+Program 6.16 Selection Sorting Algorithm for Sorting A[0:n-1]
+
+/*********************************************************************************/
+
+
+   |   /* FindMin is an auxiliary function used by SelectionSort below */
+   |   
+   |      int FindMin(InputArray A, int n)
+   |      {   
+ 5 |         int i, j = n;
+   |      
+   |         for (i = 0; i < n; ++i) if (A[i] < A[j]) j = i;
+   |         return j;
+   |      }
+10 |   
+   |   void SelectionSort(InputArray A, int n)  /* the main SelectionSort procedure */
+   |   {   
+   |      int MinPosition, temp;
+   |      
+15 |      if (n > 0) { 
+   |            MinPosition = FindMin(A,n);
+   |            temp = A[n]; A[n] = A[MinPosition]; A[MinPosition] = temp;
+   |            SelectionSort(A, n - 1);
+   |      }
+   |   }
+
+Program 6.17 Another Version of Recursive SelectionSort
+
+/*********************************************************************************/
+
+
+   |   void MergeSort(ListType List)
+   |   {
+   |      if (the List has more than one item in it) {
+   |         (break the List into two half-lists, L = LeftList and R = RightList)
+ 5 |         (sort the LeftList using MergeSort(L))
+   |         (sort the RightList using MergeSort(R))
+   |         (merge L and R into a single sorted List)
+   |      } else {
+   |         (do nothing, since the list is already sorted)
+10 |      }
+   |   }
+
+Program Strategy 6.19 Abstract Strategy for Merge Sorting
+
+/*********************************************************************************/
+
+
+   |   int BinarySearch(Key K, SearchArray A, int L, int R)
+   |   {
+   |      /* search for the position of the search key K in the subarray A[L:R] */
+   |      /* return the position of K as the value of the function */
+ 5 |
+   |      (compute the MidPoint of the interval L:R)
+   |
+   |      if (the search interval is empty) {
+   |         (return -1, denoting that K was not found in array A)
+10 |      } else if (K equals the key at the MidPoint of A[L:R]) {
+   |         (return the MidPoint, which gives the position of key K in array A)
+   |      } else if (K is greater than the key at A[MidPoint]) {
+   |         (return value of the function call BinarySearch(K, A, MidPoint+1, R))
+   |         (which searches in the right half-interval, MidPoint+1:R)
+15 |      } else {
+   |         (return value of the function call BinarySearch(K, A, L, Midpoint-1))
+   |         (which searches in the left half-interval L:MidPoint-1)
+   |      }
+   |   }
+
+Program Strategy 6.22 Abstract Binary Searching
+
+/*********************************************************************************/

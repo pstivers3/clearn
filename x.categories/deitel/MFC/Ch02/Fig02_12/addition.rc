@@ -1,0 +1,22 @@
+// Fig. 2.12: Addition.rc
+// resource script for addition example
+#include "afxres.h"
+#include "addition_ids.h"
+
+Addition DIALOG  50, 50, 130, 130
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+
+CAPTION "Addition Dialog Box"
+{
+    LTEXT         "Enter a number:", IDC_STATIC, 30, 20, 50, 8
+    EDITTEXT      IDC_NUMBER, 30, 30, 72, 16, ES_NUMBER
+
+    DEFPUSHBUTTON "Add", IDC_ADD, 50, 50, 30, 15
+
+    LTEXT         "Total:", IDC_STATIC, 30, 70, 20, 8
+    EDITTEXT      IDC_TOTAL, 30, 80, 70, 16, 
+                  ES_READONLY | NOT WS_TABSTOP
+
+    PUSHBUTTON    "Clear", IDC_CLEAR, 50, 100, 30, 15, 
+                  NOT WS_TABSTOP
+}

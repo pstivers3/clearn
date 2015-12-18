@@ -1,0 +1,278 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 10 of                         */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   |   void GraphSearch(G,v)              /* Search graph G starting at vertex v */
+   |   {
+   |      (let G = (V,E) and let v in V be a vertex of G.)
+   |
+ 5 |      for (each vertex w in V that is accessible from v) {
+   |         Visit(w);
+   |      }
+   |   }
+
+Program Strategy 10.6 Preliminary Graph Searching Strategy
+
+/*********************************************************************************/
+
+
+   |   typedef enum {false, true} Boolean;
+   |
+   |   void GraphSearch(G,v)             /* Search graph G beginning at vertex v */
+   |   {
+ 5 |      (Let G = (V,E) be a graph.)
+   |      (Let C be an empty container.)
+   |
+   |         for (each vertex x in V) {
+   |            x.Visited = false; /* mark each vertex x in V as being unvisited */
+10 |         }
+   |   
+   |      /* Use vertex v in V as a starting point, and put v in container C */
+   |         (Put v into C);
+   |   
+15 |         while (C is non-empty) {
+   |
+   |            (Remove a vertex x from container C);
+   |
+   |            if (!(x.Visited)) {     /* if vertex hasn't been visited already */
+20 |               Visit(x);                                /* visit x, and then */
+   |               x.Visited = true;            /* mark x as having been visited */
+   |               for (each vertex w in Vx) {   /* Enter all unvisited vertices */
+   |                  if (!(w.Visited))  (Put w into C);         /* of Vx into C */
+   |               }
+25 |            }
+   |         }
+   |   
+   |   }
+
+Program Strategy 10.7 First Refinement
+
+/*********************************************************************************/
+
+
+   |   void ExhaustiveGraphSearch(G)
+   |   {
+   |      (Let G = (V,E) be a graph.)
+   |
+ 5 |      for (each vertex v in V) {            /* perform Program Strategy 10.7 */
+   |         GraphSearch(G,v);                                /* for each v in V */
+   |      }
+   |
+   |   }
+
+Program Strategy 10.10 Exhaustive Version of Graph Searching
+
+/*********************************************************************************/
+
+
+   |   void TopologicalOrder(Graph G,  List *L)
+   |   {
+   |      (Let G = (V,E) be a graph.)
+   |      (Let L be a list of vertices.)                      /* see Program 7.4 */
+ 5 |      (Let Q be a queue of vertices.)                /* for queue operations */
+   |      (Let D[V] be an array of integers indexed by vertices in V.)
+   |
+   |      /* Compute the in-degrees D[x] of the vertices x in G */
+   |         for (each vertex x in V) D[x] = 0;       /* initialize D[x] to zero */
+10 |         for (each vertex x in V) {
+   |            for (each successor w in Succ(x)) D[w]++;
+   |         }
+   |
+   |      /* Initialize the queue Q to contain all vertices having zero in-degrees */
+15 |         Initialize(&Q);               /* initialize Q to be the empty queue */
+   |         for (each vertex x in V) {                       /* insert x on the */
+   |            if (D[x] == 0) Insert(x,&Q);           /* rear of Q if D[x] == 0 */
+   |         }
+   |
+20 |      /* Initialize the list L to be the empty list */
+   |         InitializeList(&L);      
+   |
+   |      /* Process vertices in the queue Q until the queue becomes empty */
+   |         while ( !Empty(&Q) ) {
+25 |            Remove(&Q,x);             /* Remove vertex x from the front of Q */
+   |            AddToList(x,&L);               /* Insert x on the rear of list L */
+   |            for (each successor w in Succ(x)) {
+   |                D[w]--;                   /* decrease predecessor count of w */
+   |                if (D[w] == 0) Insert(w,&Q);    /* insert w on the rear of Q */
+30 |             }
+   |         }
+   |
+   |      /* The list L now contains the vertices of G in topological order. */
+   |
+   |   }
+
+Program Strategy 10.12 Topological Ordering
+
+/*********************************************************************************/
+
+
+   |   void ShortestPath(void)
+   |   {
+   |
+   |      (Let MinDistance be a variable that contains edge weights as values)
+ 5 |      (and let Minimum(x,y) be a function whose value is the lesser of x and y.)
+   |   
+   |      /* Let v1 in V be the origin vertex at which the shortest path starts. */
+   |      /* Initialize W and ShortestDistance[u] as follows: */
+   |         W = {v1};
+10 |         ShortestDistance[v1] = 0;
+   |         for (each u in V - {v1} ) ShortestDistance[u] = T[v1][u];
+   |   
+   |      /* Now repeatedly enlarge W until W includes all vertices in V */
+   |         while (W != V) {
+15 |            /* find the vertex w in V - W at the minimum distance from v1 */
+   |               MinDistance = infinity;
+   |               for (each v in V - W) {
+   |                  if (ShortestDistance[v] < MinDistance) {
+   |                      MinDistance = ShortestDistance[v];
+20 |                      w = v;
+   |                  }
+   |               }
+   |            /* add w to W */
+   |               W = W union {w};
+25 |            /* update the shortest distances to vertices in V - W */
+   |               for (each u in V - W) {
+   |                  ShortestDistance[u] = 
+   |                     Minimum(ShortestDistance[u],
+   |                                ShortestDistance[w] + T[w][u]);
+30 |               }
+   |         }
+   |   }
+
+Program Strategy 10.16 Dijkstra's Shortest Path Algorithm
+
+/*********************************************************************************/
+
+
+   |   void EarliestStartingAndFinishingTimes(void)
+   |   {
+   |
+   |      (Let TopoOrderArray[1:MaxVertex] give a topological order for the)
+ 5 |      (vertices of the graph, G = (V,E), and let D[v] give the duration of)
+   |      (the task represented by vertex v for each v in the range 1:MaxVertex.)
+   |
+   |      (Let Pred(v) be a list of the vertices which are predecessors of v in)
+   |      (the graph G, and let Pred(v) == EmptySet if and only if v has)
+10 |      (no predecessors.)
+   |   
+   |       /* Process the vertices of G in topological order */
+   |
+   |      for (i = 1; i <= MaxVertex; ++i) {
+15 |
+   |         v = TopoOrderArray[i];  /* let v be the ith vertex in topological order */
+   |
+   |         if (Pred(v) == EmptySet) {        /* if v has no predecessors, then */
+   |            EST[v] = 0;                        /* v can start at time 0, and */
+20 |            EFT[v] = D[v];    /* v's duration is its earliest finishing time */
+   |         } else {
+   |            EST[v] = 0;
+   |            for (each w in Pred(v)) {           /* find the latest among the */
+   |               if (EFT[w] > EST[v]) {                  /* finishing times of */
+25 |                  EST[v] = EFT[w];                    /* v's predecessors to */
+   |               }                     /* determine v's earliest starting time */
+   |            }
+   |            EFT[v] = EST[v] + D[v];  /* then v's earliest starting time plus */
+   |         }                    /* its duration is its earliest finishing time */
+30 |      }
+   |   }
+
+Program Strategy 10.24 Computing Earliest Starting and Finishing Times
+
+/*********************************************************************************/
+
+
+   |   void ComputeProjectFinishingTime(void)
+   |   {
+   |      (Let v be a vertex of the graph G)
+   |      (We wish to compute, PFT, the earliest time)
+ 5 |      (at which the project can finish.)
+   |   
+   |      /* Initialize PFT to zero for the latest possible finishing time found so far */
+   |
+   |         PFT = 0;
+10 |
+   |      /* Find the latest among the finishing times of all vertices in the graph */
+   |
+   |         for (v = 1; v <= MaxVertex; ++v) {
+   |            if (EFT[v] > PFT) {                      /* update PFT to latest */
+15 |               PFT = EFT[v];                  /* finishing time found so far */
+   |            }
+   |         }
+   |   }
+
+Program Strategy 10.25 Computing the Project Finishing Time
+
+/*********************************************************************************/
+
+
+   |   void LatestStartingAndFinishingTimes(void)
+   |   {
+   |      (Let TopoOrderArray[1:MaxVertex] give a topological order for the)
+   |      (vertices of the graph, G = (V,E), and let D[v] give the duration of)
+ 5 |      (the task represented by vertex v for each v in the range 1:MaxVertex.)
+   |
+   |      (Let Succ(v) be a list of the vertices which are successors of v in)
+   |      (the graph G, and let Succ(v) == EmptySet if and only if v has no successors.)
+   |   
+10 |   
+   |       /* Process the vertices of G in the reverse of topological order */
+   |
+   |      for (i = MaxVertex; i >= 1; --i) {
+   |         v = TopoOrderArray[i];   /* let v be the ith vertex in topological order */
+15 |         if (Succ(v) == EmptySet) {          /* if v has no successors, then */
+   |         
+   |            LFT[v] = PFT;             /* PFT is the latest v can finish, and */
+   |            LST[v] = LFT[v] - D[v];                  /* v's LST must precede */
+   |                                                  /* its LFT by its duration */
+20 |         } else {
+   |
+   |            LFT[v] = PFT;
+   |            for (each w in Succ(v)) {         /* find the earliest among the */
+   |               if (LST[w] < LFT[v]) {                   /* starting times of */
+25 |                  LFT[v] = LST[w];                      /* v's successors to */
+   |               }                      /* determine v's latest finishing time */
+   |            }
+   |            LST[v] = LFT[v] - D[v];  /* then v's latest finishing time minus */
+   |         }                       /* its duration is its latest starting time */
+30 |      }
+   |   }
+
+Program Strategy 10.27 Computing Latest Starting and Finishing Times
+
+/*********************************************************************************/
+
+
+   |   void ComputeCriticalPath(void)
+   |   {
+   |      /* This algorithm computes a list, CP, of vertices on the critical path. */
+   |      
+ 5 |
+   |      (Let CP be an initially empty list of vertices.)
+   |       
+   |         InitializeToEmptyList(&CP);
+   |
+10 |      /* Process the vertices of G in topological order */
+   |
+   |      for (i = 1; i <= MaxVertex; ++i) {
+   |         v = TopoOrderArray[i];  /* let v be the ith vertex in topological order */
+   |         if (LST[v] == EST[v]) {   /* if v's latest and earliest start times are */
+15 |            InsertOnList(v,&CP);   /* identical, then v is on the critical path. */
+   |         }
+   |      }
+   |   }
+
+Program Strategy 10.28 Computing the Critical Path
+
+/*********************************************************************************/
+

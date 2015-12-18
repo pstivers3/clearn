@@ -1,0 +1,139 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 11 of                         */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   |   void HashInsert(KeyType K, InfoType I)
+   |    {
+   |      int  i; 
+   |      int  ProbeDecrement;
+ 5 |
+   |      i = h(K);                          /* let i be the first hash location */
+   |      ProbeDecrement = p(K);                  /* compute the probe decrement */
+   | 
+   |      while (T[i].Key != EmptyKey) {
+10 |         i -= ProbeDecrement;                 /* compute next probe location */
+   |         if (i < 0) { 
+   |            i += M;                                 /* wrap around if needed */
+   |         }
+   |      }
+15 |
+   |      T[i].Key = K;                 /* insert new key K in table T, and then */
+   |      T[i].Info = I;                         /* insert new Info I in table T */
+   |   }
+
+Program 11.16 Inserting a New Table Entry into a Hash Table
+
+/*********************************************************************************/
+
+
+   |   int HashSearch(KeyType K)
+   |   {
+   |         int      i;
+   |         int      ProbeDecrement;
+ 5 |         KeyType  ProbeKey;
+   |
+   | 
+   |      /* Initializations */
+   |         i = h(K);                       /* let i be the first hash location */
+10 |         ProbeDecrement = p(K);                   /* compute probe decrement */
+   |         ProbeKey = T[i].Key;          /* extract first probe key from table */
+   |      
+   |
+   |      /* Search loop */
+15 |         while ((K != ProbeKey) && (ProbeKey != EmptyKey)) {
+   |            i -= ProbeDecrement;              /* compute next probe location */
+   |            if (i < 0) {
+   |               i += M;                              /* wrap around if needed */
+   |            }
+20 |            ProbeKey = T[i].Key;                   /* extract next probe key */
+   |         }
+   |
+   |      /* Determine success or failure */
+   |         if (ProbeKey == EmptyKey) {
+25 |            return -1;          /* return -1 to signify that K was not found */
+   |         } else {   
+   |            return  i;            /* return location, i, of key K in table T */
+   |         }
+   |   }
+
+Program 11.17 Searching for a Table Entry with Search Key K
+
+/*********************************************************************************/
+
+
+   |   void HashInsert(KeyType K, InfoType I)
+   |   {
+   |         int      i, j; 
+   |         KeyType  ProbeKey;
+ 5 |
+   |
+   |      /* initializations */
+   |         i = h(K);                                             /* first hash */
+   |         j = 0;            /* initialize counter for triangle number hashing */
+10 |         ProbeKey = T[i].Key;
+   |
+   |      /* find first empty slot */ 
+   |         while (ProbeKey != EmptyKey) {
+   |            j++;                /* increment triangle number hashing counter */
+15 |            i -= j;                           /* compute next probe location */
+   |            if (i < 0) {
+   |               i += M;                              /* wrap around if needed */
+   |            }
+   |            ProbeKey = T[i].Key;
+20 |         }
+   |
+   |      /* insert new key K and info I into table T */
+   |         T[i].Key = K;
+   |         T[i].Info = I;
+   |   }
+
+/*-------------------------------------------------------------------------------*/
+
+/*-------------------------------------------------------------------------------*/
+   |   int HashSearch(KeyType K)
+   |   {
+   | 
+   |         int      i, j; 
+ 5 |         KeyType  ProbeKey;
+   |
+   |
+   |
+   |      /* initializations */ 
+10 |         i = h(K);                                             /* first hash */
+   |         j = 0;            /* initialize counter for triangle number hashing */
+   |         ProbeKey = T[i].Key;
+   |
+   |      /* find either an entry with key, K, or the first empty entry */
+15 |         while ((K != ProbeKey) && (ProbeKey != EmptyKey)) {
+   |            j++;                /* increment triangle number hashing counter */
+   |            i -= j;              /* decrement probe location by the amount j */
+   |            if (i < 0) i += M;                      /* wrap around if needed */
+   |            ProbeKey = T[i].Key
+20 |         }
+   |
+   |      /* return the position of key K in table T, or return -1 if K not in T */
+   |         if (ProbeKey == EmptyKey) {
+   |            return -1;               /* return -1 to signify K was not found */
+25 |         } else {   
+   |            return i;             /* return location, i, of key K in table T */
+   |         }
+   |
+   |   }
+
+/*-------------------------------------------------------------------------------*/
+
+Programs from Ex. 11.5.3 for Triangle Number hashing
+
+/*********************************************************************************/
+

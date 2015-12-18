@@ -1,0 +1,12 @@
+#include <stdio.h>
+
+int a=1;
+static int b=1;
+
+void main(void) {
+  extern int b; 
+  printf("main; a=1, b=1, check; a=%d  b=%d\n", a, b);
+  f2();
+  printf("main; a=1, b=1, check; a=%d  b=%d\n", a, b);
+}
+

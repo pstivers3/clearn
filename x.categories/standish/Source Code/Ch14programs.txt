@@ -1,0 +1,1658 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 14 of                         */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/* ----------------------------------------------------------------------------- */
+
+   /* Assume that the variable Next and the functions Reduce(k,L) */
+   /* and Shift(c) are defined externally. */
+
+    5 |   extern void ParseE(void);      /* extern needed for functions that are */
+      |                                       /* called before they are declared */
+
+   /* -------------------------------------------------------------------------- */
+
+   10 |   
+      |   void ParseP(void)                                   /* parse a Primary */
+      |   {
+      |      if (Next == '(') {
+      |         Shift('(');
+   15 |         ParseE();
+      |         Shift(')');
+      |         Reduce(3,'P');                                    /* P --> ( E ) */
+      |      } else {
+      |         Shift('a');                /* 'a' stands for any letter or digit */
+   20 |         Reduce(1,'P');                                        /* P --> a */
+      |      }
+      |   }
+      |
+
+   /* -------------------------------------------------------------------------- */
+
+      |   void ParseF(void)                                    /* parse a Factor */
+      |   {
+      |      ParseP();
+   30 |      Reduce(1,'F');                                           /* F --> P */
+      |      while (Next == '^') {
+      |         Shift(Next);
+      |         ParseP();
+      |         Reduce(3,'F');                                    /* F --> F ^ P */
+   35 |      }
+      |   }
+
+   /* -------------------------------------------------------------------------- */
+
+   40 |   void ParseT(void)                                      /* parse a Term */
+      |   {
+      |      ParseF();
+      |      Reduce(1,'T');                                           /* T --> F */
+      |      while ((Next == '*') || (Next == '/')) {
+   45 |         Shift(Next);
+      |         ParseF();
+      |         Reduce(3,'T');                               /*  T -->  T * / F  */
+      |      }
+      |   }
+
+   /* -------------------------------------------------------------------------- */
+
+      |   void ParseE(void)                               /* parse an Expression */
+      |   {
+   55 |      ParseT();
+      |      Reduce(1,'E');                                           /* E --> T */
+      |      while ((Next == '+') || (Next == '-')) {
+      |         Shift(Next);
+      |         ParseT();
+   60 |         Reduce(3,'E');                                   /* E --> E +- T */
+      |      }
+      |   }
+
+   /* -------------------------------------------------------------------------- */
+
+      |   int main(void)
+      |   {
+      |      do {
+      |         GetInputFromUser();
+   70 |         ParseE();           /* call the parser to parse the input string */
+      |      } while (UserWantsToContinue());
+      |   }
+
+   /* -------------------------------------------------------------------------- */
+
+Program 14.6 Recursive Descent Parser 
+(See the executable versions of these programs and the complete programs )
+(for the parser utilities at the end of this file.)
+
+/*********************************************************************************/
+
+
+give input string: y * x^2 / (z-3)
+  P  -->    a     { where  a = y }
+  F  -->    P
+  T  -->    F
+  P  -->    a     { where  a = x }
+  F  -->    P
+  P  -->    a     { where  a = 2 }
+  F  -->  F ^ P
+  T  -->  T * F
+  P  -->    a     { where  a = z }
+  F  -->    P
+  T  -->    F
+  E  -->    T
+  P  -->    a     { where  a = 3 }
+  F  -->    P
+  T  -->    F
+  E  -->  E - T
+  P  -->  ( E )
+  F  -->    P
+  T  -->  T / F
+  E  -->    T
+Do you want to give another string? (y/n) 
+
+/* ----------------------------------------------------------------------------- */
+
+Figure 14.7's output is typographically incorrect 
+(A right arrow "-->" should replace the slashed Oh symbol for the empty set.)
+The corrected version of the text in Figure 14.7 is given above.
+
+/*********************************************************************************/
+
+
+/* ----------------------------------------------------------------------------- */
+
+   /* Assume that the variable Next and the functions Reduce(k,L) */
+   /* and Shift(c) are defined externally. */
+   
+ 5    extern char *PostfixString;       /* PostfixString holds the output of the */
+                                                                  /* translation */
+
+   /* -------------------------------------------------------------------------- */
+
+10 |   void AppendToOutput(char x)           /* append x to end of PostfixString */
+   |   {
+   |      /* performs Concatenate(PostfixString,x, '  ');  */
+   |   }
+   
+   /* -------------------------------------------------------------------------- */
+   
+   |      extern void ParseE(void);      /* extern needed for functions that are */
+   |                                          /* called before they are declared */
+    
+   /* -------------------------------------------------------------------------- */
+   
+   |   void ParseP(void)                     /* translate a Primary into postfix */
+   |   {   
+   |      char Operand;
+25 |
+   |      if (Next == '(') {
+   |         Shift('(');
+   |         ParseE();                                            /* ( E ) --> E */
+   |         Shift(')');
+30 |         Reduce(3,'P');
+   |      } else {
+   |         Operand = Next;
+   |         Shift('a');                   /* 'a' stands for any letter or digit */
+   |         Reduce(1,'P');
+35 |         AppendToOutput(Operand);                                 /* a --> a */
+   |      }
+   |   }
+
+   /* -------------------------------------------------------------------------- */
+
+   |   void ParseF(void)                      /* translate a Factor into postfix */
+   |   {                                                      /* F ^ P --> F P ^ */
+   |      char Operator;
+   |
+45 |      ParseP();                                                   /* F --> F */
+   |      Reduce(1,'F');         
+   |      while ( Next == '^') {
+   |         Operator = Next;
+   |         Shift(Next);
+50 |         ParseP();                                                /* P --> P */
+   |         Reduce(3,'F');
+   |         AppendToOutput(Operator);                          /* F P --> F P ^ */
+   |      }
+   |   }
+
+   /* -------------------------------------------------------------------------- */
+
+   |   void ParseT(void)                        /* translate a Term into postfix */
+   |   {                                            /*   T  * /  F --> T F * /   */
+60 |      char Operator;
+   |
+   |      ParseF();                                                   /* T --> T */
+   |      Reduce(1,'T');
+   |      while ((Next == '*') || (Next == '/')) {
+65 |         Operator = Next;
+   |         Shift(Next);
+   |         ParseF();                                                /* F --> F */
+   |         Reduce(3,'T');
+   |         AppendToOutput(Operator);                    /*   T F --> T F * /   */
+70 |      }
+   |   }
+   
+   /* -------------------------------------------------------------------------- */
+
+   |   void ParseE(void)                 /* translate an Expression into postfix */
+75 |   {                     /* E +- T --> E T +- */
+   |      char Operator;
+   |
+   |      ParseT();
+   |      Reduce(1,'E');                                            /*  E --> E  */
+80 |      while ((Next == '+') || (Next == '-')) {
+   |         Operator = Next;
+   |         Shift(Next);
+   |         ParseT();                                              /*  T --> T  */
+   |         Reduce(3,'E');
+85 |         AppendToOutput(Operator);                       /*  E T --> E T +-  */
+   |      }
+   |   }
+
+/* ----------------------------------------------------------------------------- */
+
+   |   int main(void)
+   |   {
+   |      do {
+   |         PostfixString = " ";    /* initialize PostfixString to empty string */
+95 |         GetInputFromUser();
+   |         ParseE();              /* call the parser to parse the input string */
+   |         printf("output = %s\n", PostfixString); /* output the PostfixString */
+   |      } while (UserWantsToContinue() );
+   |   }
+
+Program 14.8 Infix to Postfix Translator 
+
+/*********************************************************************************/
+
+
+give input string: (x - y)^2 + 5*z
+  P  -->    a     { where  a = x }    x
+  F  -->    P
+  T  -->    F
+  E  -->    T
+  P  -->    a     { where  a = y }    x y
+  F  -->    P
+  T  -->    F
+  E  -->  E - T                       x y -
+  P  -->  ( E )
+  F  -->    P
+  P  -->    a     { where  a = 2 }    x y - 2
+  F  -->  F ^ P                       x y - 2 ^
+  T  -->    F
+  E  -->    T
+  P  -->    a     { where  a = 5 }    x y - 2 ^ 5
+  F  -->    P
+  T  -->    F
+  P  -->    a     { where  a = z }    x y - 2 ^ 5 z
+  F  -->    P
+  T  -->  T * F                       x y - 2 ^ 5 z *
+  E  -->  E + T                       x y - 2 ^ 5 z * +
+output = x y - 2 ^ 5 z * +
+Do you want to give another string? (y/n) n
+
+   /* ----------------------------------------------------------------------- */
+
+Figure 14.9's output is typographically incorrect 
+(A right arrow "-->" should replace the slashed Oh symbol for the empty set.)
+The corrected version of the text in Figure 14.9 is given above.
+
+/*********************************************************************************/
+
+
+   |   TreeNodePointer ReverseTree(TreeNodePointer T)
+   |   {
+   |      TreeNodePointer Temp;
+   |
+ 5 |      if (T == NULL) {
+   |         return NULL;    /* the reversal of the empty tree is the empty tree */
+   |      } else {
+   |         Temp = T->LeftLink;                    /* save left subtree in Temp */
+   |         T->LeftLink = ReverseTree(T->RightLink);
+10 |         T->RightLink = ReverseTree(Temp);
+   |         return T;
+   |      }
+   |
+   |   }
+
+Program 14.13 Reversing a Binary Tree T
+
+/*********************************************************************************/
+
+
+   |   int f(int n)                             /* let n be any positive integer */
+   |   {
+   |      if (n == 1) {
+   |         return 1;
+ 5 |      } else if ( (n%2) == 0 ) {               /* n is even iff (n % 2) == 0 */
+   |         return f(n / 2);
+   |      } else {                                     /* otherwise, if n is odd */
+   |         return f(3*n + 1);
+   |      }
+   |   }
+
+Program of Ex. 14.5.1
+
+/*********************************************************************************/
+
+
+   |   void Find(ItemArray A, int k, int m, int n)
+   |   {
+   |   
+   |      /* to move the kth smallest item in A[m:n] */
+ 5 |      /*  into the kth position */
+   |
+   |      if (there is more than one item in A[m:n] ) {
+   |      
+   |         (Partition A[m:n] into a LeftPartition A[m:j] and a)
+10 |         (RightPartition A[i:n] such that i == j+1)
+   |      
+   |         if (the kth item is in the LeftPartition) {
+   |            (Find the kth item of the LeftPartition A[m:j])
+   |         } else {
+15 |            (Find the (k - ( j - m + 1))th item of the RightPartition A[i:n])
+   |         }
+   |      }
+   |   }
+
+Program Strategy of Ex. 14.5.2
+
+/*********************************************************************************/
+
+
+   |   /* ------------------------------------------------------------ */
+   |
+   |   void Perm(PermutationArray A, int m, int n)
+   |   {
+ 5 |      int i;
+   |      
+   |      if ( m == 0 ) {
+   |      
+   |         PrintPerm(A,n);                  /* prints the first n objects in A */
+10 |            
+   |      } else {
+   |
+   |         for (i = 0; i < m; ++i ) {
+   |            Exchange(A,i,m-1);                     /* swaps A[i] <--> A[m-1] */
+15 |            Perm(A,m -1,n);
+   |            Exchange(A,m-1,i);                     /* swaps A[m-1] <--> A[i] */
+   |         }
+   |      }
+   |   }
+20 |
+   |   /* ------------------------------------------------------------ */
+   |
+   |   void Permute(PermutationArray A, int n)
+   |   {
+25 |      InitPermArray(A,n);    /* fills array A[0:n-1] with n distinct objects */
+   |      Perm(A,n,n);          /* calls subroutine to print the n! permutations */
+   |                                                              /* of A[0:n-1] */
+   |   }
+
+Program of Ex. 14.5.3
+
+/*********************************************************************************/
+
+   The following program is an executable C program that tests the programs
+   that are solutions to exercises after the recrusive descent parser and
+   postfix translator programs.
+
+/*******
+ *
+ *   This source file contains the programs in Chapter 14 after the 
+ *   Recursive Descent parser and the Postfix Translator
+ *
+ ******/
+ 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* to find the kth smallest item in an array  */
+
+  
+/* type definitions */
+    
+  typedef int ItemType;
+        
+  typedef ItemType ItemArray[100];
+  
+  typedef char AirportCode[4];
+  
+  typedef struct TreeNodeTag {
+              AirportCode    Airport;
+              struct TreeNodeTag *LeftLink;
+              struct TreeNodeTag *RightLink;
+          } TreeNode;
+  typedef TreeNode *TreeNodePointer;
+     
+
+/* variables */ 
+   
+  ItemArray A,B,C;
+  
+  int MaxIndex, k,i;
+        
+/* ------------------------------------------------------------ */
+
+   TreeNodePointer ReverseTree(TreeNodePointer T)
+   {
+       TreeNodePointer Temp;
+   
+       if (T == NULL) {
+          return NULL;
+       } else {
+          Temp = T->LeftLink;
+          T->LeftLink = ReverseTree(T->RightLink);
+          T->RightLink = ReverseTree(Temp);
+          return T;
+       }
+   }
+
+/* ------------------------------------------------------------ */
+
+   TreeNodePointer MakeNode(char *A)
+   {
+        TreeNodePointer T;
+        
+        T = (TreeNodePointer)malloc(sizeof(TreeNode));
+        strcpy(T->Airport,A);
+        T->LeftLink = NULL;
+        T->RightLink = NULL;
+        return T;
+   }
+
+/* ------------------------------------------------------------ */     
+
+   void AuxPrintTree(TreeNodePointer T)
+   {
+       if (T == NULL) {
+          return;
+       } else {
+          putchar('[');
+          if (T->LeftLink != NULL) {
+          AuxPrintTree(T->LeftLink);
+          }
+          printf(" %s ",T->Airport);
+          if (T->RightLink != NULL) {
+          AuxPrintTree(T->RightLink);
+          }
+          putchar(']');
+       }
+   }
+
+/* ------------------------------------------------------------ */     
+
+   void PrintTree(TreeNodePointer T)
+   {
+       AuxPrintTree(T);
+       putchar('\n');
+   }
+
+
+/* ------------------------------------------------------------ */
+
+   int Partition(ItemArray A, int i, int j)     /* assume i < j */
+   {
+      ItemType Pivot,Temp;
+      int k, middle, p; 
+   
+      middle = (i+j)/2;
+      Pivot = A[middle]; A[middle] = A[i]; A[i] = Pivot;
+      p = i;
+     
+      for (k= i+1; k <= j; ++k) {
+          if (A[k] < Pivot) {
+              Temp = A[++p]; A[p] = A[k]; A[k] = Temp;
+          }
+      }     
+      
+      Temp = A[i]; A[i] = A[p]; A[p] = Temp;
+      return p;
+   }
+   
+           
+/* ------------------------------------------------------------ */
+
+   void QuickSort(ItemArray A, int m, int n)
+   {
+       int p;
+   
+     if (n > m) {
+       p = Partition(A,m,n);
+       QuickSort(A,m,p-1);
+       QuickSort(A,p+1,n);
+     }
+   }
+        
+/*--------------------------------------------------------------------------*/
+
+  void Find(ItemArray A, int k, int m, int n)
+  {
+    /* to move the kth smallest item in A[m:n] into the kth position */
+        int i,j,p;
+
+  
+    if (m < n) {        /* if there is more than one item in A to partition */
+    
+      p = Partition(A,m,n);   /* p == location of the Pivot after partition */
+      
+      if (p == n) {             /* ensure that the partition is of the form */
+          j = p-1; i = p;               /* A[m:j] and A[i:n], where i = j+1 */
+      } else {
+          j = p; i = p+1;
+      }
+      
+      if  (k  <=  (j - m + 1) ) {   /* if A[m:j] has at least k items, then */
+        Find( A, k, m, j);                            /* Find kth in A[m:j] */
+      } else {
+        Find( A, k-(j-m+1), i, n); /* otherwise, Find k-(j-m+1)th in A[i:n] */
+      }
+    
+    }
+  
+  }
+
+
+/*--------------------------------------------------------------------------*/
+   
+   void Print(ItemArray A, int m, int n)
+   {
+     int i;
+   
+     for (i = m; i < n; ++i) printf("%3d%c",A[i],',');
+     printf("%3d\n",A[n]);
+   }
+   
+/*------------------------------------------------------------*/
+   
+   void Initialize(ItemArray A, int m, int n)
+   {
+     int i;
+   
+     for (i = m; i <= n; ++i) A[i] = 1 + (abs(rand()) % 99);
+   }
+   
+/*------------------------------------------------------------*/
+   
+   void CopyArray(ItemArray A,ItemArray B,int m, int n)
+   {
+     int i;
+   
+     for (i = m; i <= n; ++i) A[i] = B[i];
+   }
+
+/*------------------------------------------------------------*/
+   
+   int f(int n)     /* this is the program of Exercise 14.5.1 */
+   {
+       if (n == 1) {
+            return 1;
+       } else if ((n%2) == 0) {
+            return f(n/2);
+       } else {
+            return f(3*n + 1);
+       }
+   }
+      
+/*------------------------------------------------------------*/
+
+   void Exchange(ItemArray A, int i, int j)
+   {
+      ItemType temp;
+      
+      temp = A[i]; A[i] = A[j]; A[j] = temp;
+      
+   }
+
+/*------------------------------------------------------------*/
+
+   void PrintPerm(ItemArray A, int n)
+   {
+       int i;
+       
+       for (i = 0; i < n; ++i) {
+          printf("%2d, ",A[i]);
+       }
+       putchar('\n');
+   }
+
+/*------------------------------------------------------------*/
+
+   void InitPermArray(ItemArray A, int n)
+   {
+       int i;
+       
+       for (i=0; i<n; ++i) A[i]=i+1;
+   }
+
+/*------------------------------------------------------------*/
+
+   void Perm(ItemArray A, int m, int n)
+   {
+      int i;
+      
+      if (m == 0) {
+         PrintPerm(A,n);
+      } else {
+         for (i = 0; i < m; ++i) {
+             Exchange(A,i,m-1);
+             Perm(A,m-1,n);
+             Exchange(A,m-1,i);
+         }
+      }
+   }
+      
+/*------------------------------------------------------------*/
+
+   void Permute(ItemArray A, int n)
+   {
+       InitPermArray(A,n);
+       Perm(A,n,n);
+   }
+
+
+/*------------------------------------------------------------*/
+
+int main(void)
+{
+   TreeNodePointer T,S,U,V,W;
+   
+   T = MakeNode("MEX");
+   U = MakeNode("ARN");
+   S = MakeNode("LAX");
+   V = MakeNode("ZRH");
+   W = MakeNode("LON");
+   
+   S->LeftLink = U;
+   S->RightLink = W;
+   T->LeftLink = S;
+   T->RightLink = V;
+   
+   PrintTree(T);
+   
+   ReverseTree(T);
+   PrintTree(T);
+/*   
+   T = NULL;
+   PrintTree(T); 
+   ReverseTree(T);
+   PrintTree(T);
+*/
+
+/*
+   MaxIndex = 20; k = 10;
+   
+   Permute(A,3);
+
+
+   Initialize(A,0,MaxIndex-1);
+   
+   CopyArray(B,A,0,MaxIndex-1);
+   CopyArray(C,A,0,MaxIndex-1);                 /+ copy A into B & C +/
+   QuickSort(B,0,MaxIndex-1);
+   Print(A,0,MaxIndex-1);
+   Print(B,0,MaxIndex-1);
+   
+
+   for (i = 0; i < MaxIndex; ++i) {
+      Find(A,i+1,0,MaxIndex-1);
+      printf("the %2dth item of A == %d\n",i+1,A[i]);
+      if (A[i] == B[i]) { ; } else printf("Error at %d\n",i+1);
+      CopyArray(A,C,0,MaxIndex-1);
+   }
+*/ 
+
+      
+    /*
+      QuickSort(A,0,MaxIndex-1);
+      Print(A,0,MaxIndex-1);
+    */
+
+/* test f(n) in Exercise 14.5.1 */
+/*
+   printf("f(13)  == %d\n",f(13));
+   printf("f(1)   == %d\n",f(1));
+   printf("f(15)  == %d\n",f(15));
+   printf("f(176) == %d\n",f(176));
+*/
+}
+/* end main program */
+
+
+/*********************************************************************************/
+
+   The following programs are utility programs used by the Recursive Descent
+   Parser program (Program 14.6) and the postfix Translator program 
+   (Program 14.8).
+
+
+/***************************************************************/
+
+   The following program is the "ParserUtilities.h" file
+
+/***************************************************************/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "SeqStackInterface.h"
+
+
+/* ---------------<  the only variable exported by the module >------------------- */
+
+
+  /* extern char Next;                   /+ the next character in the input string */
+  
+/* ---------------< the four procedures exported by the module >------------------ */
+
+  
+  extern void GetInputStringFromUser(void);            /*  gets the Input string   */
+                                                       /*   from the user          */
+  
+  extern void Reduce(int n, char S);                   /*  pops n items off Stack, */
+                                                       /*   then pushes S on Stack */
+  
+  extern void Shift(char c);                           /*  reads c from Input and  */
+                                                       /*   pushes c on Stack      */
+  
+  extern int UserWantsToContinue(void);                /*  returns "true" iff user */
+                                                       /*   wants to continue      */
+  
+/* ------------------------------------------------------------------------------- */
+
+
+/***************************************************************/
+
+   The following is the "ParserUtilities.c" source file. 
+   It uses "ParserUtilities.h" above.
+
+/***************************************************************/
+
+
+/*******
+ *
+ *  This source file exports parser utility services. It uses the same sequential
+ *  stack representation as is used for the parenthesis matching program in
+ *  Chapter 7, as Program 7.5.
+ *
+ ******/
+
+
+#include "ParserUtilities.h"
+
+/******
+ *  
+ *     The ParserUtilities.h file contains the following external declarations
+ *
+ *****/
+
+/*
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "SeqStackInterface.h"
+
+/* From the SeqStackInterface.h file: 
+
+typedef StackType Stack;       /+ the StackType will depend on the representation +/
+
+
+extern void InitializeStack (Stack *S);
+                                  /+ Initialize the stack S to be the empty stack +/
+
+extern int Empty (Stack *S);
+                              /+ Returns TRUE if and only if the stack S is empty +/
+
+extern int Full (Stack *S);
+                               /+ Returns TRUE if and only if the stack S is full +/
+
+extern void Push (ItemType X, Stack *S);
+                    /+ If S is not full push a new item X onto the top of stack S +/
+
+extern void Pop (Stack *S, ItemType *X);
+                     /+ If S is non-empty, pop an item off the top of the stack S +/
+                     /+ and put it in X +/
+*/
+
+/* 
+
+/+ -------------------<  a typedef exported by the module >----------------------- +/
+
+
+  extern typedef enum {false, true} Boolean;
+
+/+ ---------------<  the only variable exported by the module >------------------- +/
+
+
+  extern char Next;                      /+ the next character in the input string +/
+  
+/+ ---------------< the four procedures exported by the module >------------------ +/  
+
+  
+  extern void GetInputStringFromUser(void);            /+  gets the Input string   +/
+                                                       /+   from the user          +/
+  
+  extern void Reduce(int n, char S);                   /+  pops n items off Stack, +/
+                                                       /+   then pushes S on Stack +/
+  
+  extern void Shift(char c);                           /+  reads c from Input and  +/
+                                                       /+   pushes c on Stack      +/
+  
+  extern Boolean UserWantsToContinue(void);            /+  returns "true" iff user +/
+                                                       /+   wants to continue      +/
+  
+/+ ------------------------------------------------------------------------------- +/
+
+*/
+                /* ----<< the implementation part of the module >>---- */
+  
+/* --------------< externs of functions called before declared >------------------ */
+
+  
+  
+/* --------------------< variables private to the module>------------------------- */
+
+  char    Next;                          /* the next character in the input string */
+  
+  char   *Answer 
+           = "blank",                                     /* a reply from the user */
+         *InputString                                          /* the input string */
+           = "a blank input string long enough for an expression"; /* the pushdown */
+
+  Stack  InputStack,ParseStack;
+
+
+/* -------------------< procedures private to the module >------------------------ */
+
+/*                                                     /+   item popped            +/
+  
+  char *FetchNext(void);                               /+  returns next non-blank  +/
+                                                       /+   character in the Input +/
+  
+  void PrintErrorMessageIfNecessary(char c, char d);   /+  write a Shift error     +/
+                                                       /+   message, if c != d     +/
+*/
+
+/* -------------------< the bodies defining the functions >----------------------- */
+
+  
+/* ------------------------------------------------------------------------------- */
+
+  void GetInputStringFromUser(void)     /* gets an Input string from user to parse */
+  {
+    int i;
+    
+    InitializeStack(&ParseStack);  /* initialize the ParseStack to the empty stack */
+    InitializeStack(&InputStack);  /* initialize the InputStack to the empty stack */
+    Push('#',&InputStack);        /* put a 'pad' character at bottom of InputStack */
+    printf("give input string: ");
+    gets(InputString);                                 /* scanf("%s",InputString); */
+    for (i=strlen(InputString)-1; i>=0; --i) Push(InputString[i],&InputStack);     
+    Next = '#';
+    Shift('#');                                              /* get things started */
+  }
+   
+/* ------------------------------------------------------------------------------- */
+
+  char FetchNext(void)            /* returns next non-blank character in the Input */
+  {
+    char d,f;
+  
+    d = Next;                     /* find the next non-space character in the Input */
+    
+    do {                          /* find the next non-space character in the Input */
+        Pop(&InputStack,&f);
+    } while (f == ' ');
+    
+    Next = f;            /* let Next be this next non-space character in the Input */
+    
+    return d;                             /* return d as the value of the function */
+  
+  }
+
+/* ------------------------------------------------------------------------------- */
+ 
+  void PrintErrorMessageIfNecessary(char c, char d)
+  {
+  
+  /* if d isn't equal to the expected character c, write an error message. */
+    
+    if (c == 'a') {         /* recall that 'a' stands for any <letter> or <digit> */
+        
+        if (! (islower(d) || isdigit(d)) ) {
+            printf("Syntax Error: expected <letter> or <digit> but got %c\n",d);
+        }
+        
+    } else if (c != d) {
+    
+        printf("Syntax Error: expected %c but got %c\n",c,d);
+    }
+    
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void Shift(char c)
+  {
+    char d;                 /* d holds the character Shifted from the Input string */
+  
+    d = FetchNext();            /* read the next character d from the Input string */ 
+    Push(d,&ParseStack);                            /* push d on top of ParseStack */
+    PrintErrorMessageIfNecessary(c,d); /* if c != d then print Shift error message */
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void Reduce(int n, char S)                    /* pop n items from Stack, push S  */
+  {
+    int i; char *Output;
+  
+  
+    /* write the reduction: top n items of stack --> S, and pop n chars off stack. */
+       
+        Output = "           ";
+       
+       Output[2*n] = '\0';
+       for (i=n-1; i>=0; --i) {
+          Pop(&ParseStack,&Output[2*i]);
+          Output[2*i+1] = ' ';
+       }
+       
+       
+       if (n == 1) {
+       
+          if (S == 'P') {
+             
+             /* PFstring = Concat(PFString,Output); */
+             
+             printf("  %c  -->    a     { where  a = %s}\n",S,Output);  
+                                                     /* later add,     ',PFString) */
+             
+          } else {
+          
+             printf("  %c  -->    %s\n",S,Output);
+             
+          }
+          
+       } else {
+       
+          printf("  %c  -->  %s\n",S,Output);
+          
+          /*
+             if ((n == 3) && (S != 'P') ) {
+                
+                /+ PFstring = Concat(PFstring,Output[3],' '); +/
+                
+                /+ printf("                  %s\n",PFString); +/
+                
+             } else {
+                putchar('\n');
+             }
+          */
+       }
+       /* end if */
+       
+    /* push S on stack */
+    
+        Push(S,&ParseStack);
+        
+  }
+  /* end Reduce */
+
+/* ------------------------------------------------------------------------------- */
+
+  int UserWantsToContinue(void)
+  {
+    printf("Do you want to give another string? (y/n) ");  
+    gets(Answer);                                           /* scanf("%s",Answer); */
+    return (Answer[0] == 'y');
+  }
+
+/* -------------------------------< end of module >------------------------------- */
+
+
+/******
+ *  
+ *     The following is the "SeqStackInterface.h" header file
+ *
+ *****/
+
+/* Figure 7.3 Stack ADT */
+
+#define MAXSTACKSIZE 100
+#define TRUE 1
+#define FALSE 0
+
+typedef char ItemType;                            /* the ItemType can be arbitrary */
+
+typedef struct {
+            int       Count;
+            ItemType    Items[MAXSTACKSIZE];
+        } StackType;
+
+                        
+
+typedef StackType Stack;        /* the StackType will depend on the representation */
+
+
+extern void InitializeStack (Stack *S);
+                                   /* Initialize the stack S to be the empty stack */
+
+extern int Empty (Stack *S);
+                               /* Returns TRUE if and only if the stack S is empty */
+
+extern int Full (Stack *S);
+                                /* Returns TRUE if and only if the stack S is full */
+
+extern void Push (ItemType X, Stack *S);
+                     /* If S is not full push a new item X onto the top of stack S */
+
+extern void Pop (Stack *S, ItemType *X);
+                      /* If S is non-empty, pop an item off the top of the stack S */
+                      /* and put it in X */
+
+
+/******
+ *  
+ *     The following is the SeqStackImplementation.c source file
+ *
+ *****/
+
+/*
+ * program 7.8  -- Sequential Stack Implementation -- p. 271
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "SeqStackInterface.h"
+
+void InitializeStack (Stack *S)
+{
+        S->Count = 0;             /* S->Count gives the number of items in S */
+}                                        /* An empty stack has 0 items in it */
+
+int Empty (Stack *S)
+{
+        return (S->Count == 0);
+}
+
+int Full (Stack *S)
+{
+        return (S->Count == MAXSTACKSIZE-1);
+
+}
+
+void Pop (Stack *S, ItemType *X)
+{
+        if (S->Count == 0) {
+                printf("attempt to pop the empty stack\n");
+        } else {
+                *X = S->Items[S->Count];
+                --(S->Count);
+        }
+}
+
+void Push (ItemType X, Stack *S)
+{
+        if (S->Count == MAXSTACKSIZE-1) {
+                printf("attempt to push a new item into full stack");
+        } else {
+                ++(S->Count);
+                S->Items[S->Count] = X;
+        }
+}
+
+/******
+ *  
+ *     The following is the "RecursiveDescentparser.c" source file
+ *
+ *     This program is the Recursive Descent Parser of Program 14.6
+ *
+ ****/  
+ 
+#include "ParserUtilities.h"
+
+/******
+ *  
+ *     The ParserUtilities.h file contains the following external declarations
+ *
+ *****/
+
+/*
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+/+ -------------------<  a typedef exported by the module >----------------------- +/
+
+
+  extern typedef enum {false, true} Boolean;
+
+  
+/+ ---------------< the four procedures exported by the module >------------------ +/  
+
+  
+  extern void GetInputStringFromUser(void);            /+  gets the Input string   +/
+                                                       /+   from the user          +/
+  
+  extern void Reduce(int n, char *S);                  /+  pops n items off Stack, +/
+                                                       /+   then pushes S on Stack +/
+  
+  extern void Shift(char *c);                          /+  reads c from Input and  +/
+                                                       /+   pushes c on Stack      +/
+  
+  extern Boolean UserWantsToContinue(void);            /+  returns "true" iff user +/
+                                                       /+   wants to continue      +/
+  
+/+ ------------------------------------------------------------------------------- +/
+
+*/
+
+/* ---------------<  the only variable imported by the module >------------------- */
+
+
+  extern char Next;                      /* the next character in the input string */
+
+/* ------------------------------------------------------------------------------- */
+
+  extern void ParseE(void);       /* extern because function called before defined */
+ 
+/* ------------------------------------------------------------------------------- */
+
+  void ParseP(void)                                           /*  parse a Primary  */
+  {
+    if (Next == '(') {   
+       Shift('(');
+       ParseE();
+       Shift(')');
+       Reduce(3,'P');  
+    } else {
+       Shift('a');                       /* 'a' stands for any <letter> or <digit> */
+       Reduce(1,'P');
+    }  
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void ParseF(void)                                            /*  parse a Factor  */
+  {
+    ParseP();
+    Reduce(1,'F');
+    while (Next == '^') {
+       Shift(Next);
+       ParseP();
+       Reduce(3,'F');
+    }
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void ParseT(void)                                              /*  parse a Term  */
+  {
+    ParseF();
+    Reduce(1,'T');
+    while ( (Next == '*') || (Next == '/') ) {
+       Shift(Next);
+       ParseF();
+       Reduce(3,'T');
+    }
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void ParseE(void)                                     Ê /*  parse an Expression  */
+  {
+    ParseT();
+    Reduce(1,'E');
+    while ( (Next == '+') || (Next == '-') ) {
+       Shift(Next);
+       ParseT();
+       Reduce(3,'E');
+    }
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+int main(void)
+{
+   
+  do {
+      GetInputStringFromUser();
+      ParseE();                     /*  call the parser to parse the input string. */
+  } while ( UserWantsToContinue() );
+
+}
+/* end main program */
+
+/***********************************************************************************/
+
+
+/******
+ *  
+ *     The following is the "ParserUtilities.h" header file for
+ *     the PostfixTranslator.c source file.
+ *
+ *****/
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "SeqStackInterface.h"
+
+
+/* ---------------<  the only variable exported by the module >------------------- */
+
+
+  /* extern char Next;                   /+ the next character in the input string */
+  
+/* ---------------< the four procedures exported by the module >------------------ */  
+
+  
+  extern void GetInputStringFromUser(void);            /*  gets the Input string   */
+                                                       /*   from the user          */
+  
+  extern void Reduce(int n, char S);                   /*  pops n items off Stack, */
+                                                       /*   then pushes S on Stack */
+  
+  extern void Shift(char c);                           /*  reads c from Input and  */
+                                                       /*   pushes c on Stack      */
+  
+  extern int UserWantsToContinue(void);                /*  returns "true" iff user */
+                                                       /*   wants to continue      */
+  
+  extern void AppendToOutput(char X);                  /*  append X to postfix     */
+                                                       /*  output string           */
+                                                       
+/* ------------------------------------------------------------------------------- */
+
+
+/******
+ *  
+ *     The following is the "ParserUtilities.c" source file for
+ *     the PostfixTranslator.c source file.
+ *
+ *****/
+
+/*
+
+  * This unit exports parser utility services. It uses the same sequential   *
+  * stack representation as is used for the parenthesis matching program in  *
+  * Chapter 7, as Program 7.5.                                               *
+
+*/
+
+
+#include "ParserUtilities.h"
+
+/******
+ *  
+ *     The ParserUtilities.h file contains the following external declarations
+ *
+ *****/
+
+/*
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "SeqStackInterface.h"
+
+/* From the SeqStackInterface.h file: 
+
+typedef StackType Stack;       /+ the StackType will depend on the representation +/
+
+
+extern void InitializeStack (Stack *S);
+                                  /+ Initialize the stack S to be the empty stack +/
+
+extern int Empty (Stack *S);
+                              /+ Returns TRUE if and only if the stack S is empty +/
+
+extern int Full (Stack *S);
+                               /+ Returns TRUE if and only if the stack S is full +/
+
+extern void Push (ItemType X, Stack *S);
+                      /+ If S is not full push a new item X onto the top of stack S +/
+
+extern void Pop (Stack *S, ItemType *X);
+                     /+ If S is non-empty, pop an item off the top of the stack S +/
+                     /+ and put it in X +/
+*/
+
+/* 
+
+/+ -------------------<  a typedef exported by the module >----------------------- +/
+
+
+  extern typedef enum {false, true} Boolean;
+
+/+ ---------------<  the only variable exported by the module >------------------- +/
+
+
+  extern char Next;                      /+ the next character in the input string +/
+  
+/+ ---------------< the four procedures exported by the module >------------------ +/  
+
+  
+  extern void GetInputStringFromUser(void);            /+  gets the Input string   +/
+                                                       /+   from the user          +/
+  
+  extern void Reduce(int n, char S);                   /+  pops n items off Stack, +/
+                                                       /+   then pushes S on Stack +/
+  
+  extern void Shift(char c);                           /+  reads c from Input and  +/
+                                                       /+   pushes c on Stack      +/
+  
+  extern Boolean UserWantsToContinue(void);            /+  returns "true" iff user +/
+                                                       /+   wants to continue      +/
+  
+  extern void AppendToOutput(char X);                  /+  append X to postfix     +/
+                                                       /+  output string           +/
+  
+/+ ------------------------------------------------------------------------------- +/
+
+*/
+                /* ----<< the implementation part of the module >>---- */
+  
+/* --------------< externs of functions called before declared >------------------ */
+
+  
+  
+/* --------------------< variables private to the module>------------------------- */
+
+  char    Next;                          /* the next character in the input string */
+  
+  char   *Answer 
+           = "blank",                                     /* a reply from the user */
+         *InputString                                          /* the input string */
+           = "a blank input string long enough for an infix expression", 
+         *PostfixString                               /* the postfix output string */
+           = "a blank output string long enough for a postfix expression"; 
+
+  Stack  InputStack,ParseStack;
+
+
+/* -------------------< procedures private to the module >------------------------ */
+
+/*                                                     /+   item popped            +/
+  
+  char *FetchNext(void);                               /+  returns next non-blank  +/
+                                                       /+   character in the Input +/
+  
+  void PrintErrorMessageIfNecessary(char c, char d);   /+  write a Shift error     +/
+                                                       /+   message, if c != d     +/
+*/
+
+/* -------------------< the bodies defining the functions >----------------------- */
+
+  
+/* ------------------------------------------------------------------------------- */
+
+  void GetInputStringFromUser(void)     /* gets an Input string from user to parse */
+  {
+    int i;
+    
+    InitializeStack(&ParseStack);  /* initialize the ParseStack to the empty stack */
+    InitializeStack(&InputStack);  /* initialize the InputStack to the empty stack */
+    PostfixString[0] = '\0';
+    Push('#',&InputStack);        /* put a 'pad' character at bottom of InputStack */
+    printf("give input string: ");
+    gets(InputString);                                 /* scanf("%s",InputString); */
+    for (i=strlen(InputString)-1; i>=0; --i) Push(InputString[i],&InputStack);     
+    Next = '#';
+    Shift('#');                                              /* get things started */
+  }
+   
+/* ------------------------------------------------------------------------------- */
+
+  char FetchNext(void)            /* returns next non-blank character in the Input */
+  {
+    char d,f;
+  
+    d = Next;                    /* find the next non-space character in the Input */
+    
+    do {                         /* find the next non-space character in the Input */
+        Pop(&InputStack,&f);
+    } while (f == ' ');
+    
+    Next = f;            /* let Next be this next non-space character in the Input */
+    
+    return d;                             /* return d as the value of the function */
+  
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void AppendToOutput(char X)
+  {
+    int n;
+    
+    n = strlen(PostfixString);
+    PostfixString[n++] = X;
+    PostfixString[n++] = ' ';
+    PostfixString[n] = '\0';
+  }
+
+/* ------------------------------------------------------------------------------- */
+ 
+  void PrintErrorMessageIfNecessary(char c, char d)
+  {
+  
+  /* if d isn't equal to the expected character c, write an error message. */
+    
+    if (c == 'a') {          /* recall that 'a' stands for any <letter> or <digit> */
+        
+        if (! (islower(d) || isdigit(d)) ) {
+            printf("Syntax Error: expected <letter> or <digit> but got %c\n",d);
+        }
+        
+    } else if (c != d) {
+    
+        printf("Syntax Error: expected %c but got %c\n",c,d);
+    }
+    
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void Shift(char c)
+  {
+    char d;                 /* d holds the character Shifted from the Input string */
+  
+    d = FetchNext();            /* read the next character d from the Input string */
+    Push(d,&ParseStack);                            /* push d on top of ParseStack */
+    PrintErrorMessageIfNecessary(c,d); /* if c != d then print Shift error message */
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void Reduce(int n, char S)                    /* pop n items from Stack, push S  */
+  {
+    int i; char *Output;
+  
+  
+    /* write the reduction: top n items of stack --> S, and pop n chars off stack. */
+       
+       Output = "           ";
+       
+       Output[2*n] = '\0';
+       for (i=n-1; i>=0; --i) {
+          Pop(&ParseStack,&Output[2*i]);
+          Output[2*i+1] = ' ';
+       }
+       
+       
+       if (n == 1) {
+       
+          if (S == 'P') {
+             
+             printf("  %c  -->    a     { where  a = %s} %s%s\n",
+                    S,Output,PostfixString,Output);
+             
+          } else {
+          
+             printf("  %c  -->    %s                        \n",S,Output);
+             
+          }
+          
+       } else {
+       
+          printf("  %c  -->  %s                      ",S,Output);
+          
+          if ((n == 3) && (S != 'P') ) {
+             
+             printf("%s%c\n",PostfixString,Output[2]);
+             
+          } else {
+          
+             putchar('\n');
+             
+          }
+
+       }
+       /* end if */
+       
+    /* push S on stack */
+    
+       Push(S,&ParseStack);
+        
+  }
+  /* end Reduce */
+
+/* ------------------------------------------------------------------------------- */
+
+  int UserWantsToContinue(void)
+  {
+    printf("Do you want to give another string? (y/n) ");  
+    gets(Answer);                                           /* scanf("%s",Answer); */
+    return (Answer[0] == 'y');
+  }
+
+/* -------------------------------< end of module >------------------------------- */
+
+/******
+ *  
+ *     The following is  the PostfixTranslator.c source file.
+ *
+ *     This program is the Postfix Translator of Program 14.8
+ *
+ ****/  
+ 
+#include "ParserUtilities.h"
+
+/******
+ *  
+ *     The ParserUtilities.h file contains the following external declarations
+ *
+ *****/
+
+/*
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+/+ -------------------<  a typedef exported by the module >----------------------- +/
+
+
+  extern typedef enum {false, true} Boolean;
+
+  
+/+ ---------------< the four procedures exported by the module >------------------ +/  
+
+  
+  extern void GetInputStringFromUser(void);            /+  gets the Input string   +/
+                                                       /+   from the user          +/
+  
+  extern void Reduce(int n, char *S);                  /+  pops n items off Stack, +/
+                                                       /+   then pushes S on Stack +/
+  
+  extern void Shift(char *c);                          /+  reads c from Input and  +/
+                                                       /+   pushes c on Stack      +/
+  
+  extern Boolean UserWantsToContinue(void);            /+  returns "true" iff user +/
+                                                       /+   wants to continue      +/
+                                                       
+  extern void AppendToOutput(char X);                  /+  appends X to postfix    +/
+                                                       /+  output string           +/
+  
+/+ ------------------------------------------------------------------------------- +/
+
+*/
+
+/* ---------------<  the two variables imported by the module >------------------- */
+
+
+  extern char Next;                      /* the next character in the input string */
+
+  extern char *PostfixString;                         /* the postfix output string */
+
+/* ------------------------------------------------------------------------------- */
+
+  extern void ParseE(void);       /* extern because function called before defined */
+ 
+/* ------------------------------------------------------------------------------- */
+
+  void ParseP(void)                                           /*  parse a Primary  */
+  {
+    char Operand;
+   
+    if (Next == '(') {   
+       Shift('(');
+       ParseE();
+       Shift(')');
+       Reduce(3,'P');  
+    } else {
+       Operand = Next;
+       Shift('a');                       /* 'a' stands for any <letter> or <digit> */
+       Reduce(1,'P');
+       AppendToOutput(Operand);
+    }  
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void ParseF(void)                                            /*  parse a Factor  */
+  {
+    char Operator;
+    
+    ParseP();
+    Reduce(1,'F');
+    while (Next == '^') {
+       Operator = Next;
+       Shift(Next);
+       ParseP();
+       Reduce(3,'F');
+       AppendToOutput(Operator);
+    }
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void ParseT(void)                                              /*  parse a Term  */
+  {
+    char Operator;
+
+    ParseF();
+    Reduce(1,'T');
+    while ( (Next == '*') || (Next == '/') ) {
+       Operator = Next;
+       Shift(Next);
+       ParseF();
+       Reduce(3,'T');
+       AppendToOutput(Operator);
+    }
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+  void ParseE(void)                                       /*  parse an Expression  */
+  {
+    char Operator;
+  
+    ParseT();
+    Reduce(1,'E');
+    while ( (Next == '+') || (Next == '-') ) {
+       Operator = Next;
+       Shift(Next);
+       ParseT();
+       Reduce(3,'E');
+       AppendToOutput(Operator);
+    }
+  }
+
+/* ------------------------------------------------------------------------------- */
+
+int main(void)
+{
+   
+  do {
+      PostfixString[0] = '\0';
+      GetInputStringFromUser();     
+      ParseE();                      /* call the parser to parse the input string. */
+      printf("output = %s\n",PostfixString);    
+  } while ( UserWantsToContinue() );
+
+}
+/* end main program */
+
+/***********************************************************************************/
+

@@ -1,0 +1,19 @@
+// Fig03.01: login.rc
+// login resources
+#include <afxres.h>
+#include "login_ids.h"
+
+Login DIALOG  50, 50, 130, 130
+CAPTION "User Authorization"
+{ 
+    LTEXT          "Enter userid:",
+                   IDC_STATIC,   30,  20, 50,  8
+    EDITTEXT       IDC_USERID,   30,  30, 70, 16
+
+    LTEXT          "Password:", 
+                   IDC_STATIC,   30,  50, 40,  8
+    EDITTEXT       IDC_PASSWORD, 30,  60, 70, 16,
+                   ES_PASSWORD
+
+    DEFPUSHBUTTON  "Log in", IDC_LOGIN, 50, 100, 30, 15
+}

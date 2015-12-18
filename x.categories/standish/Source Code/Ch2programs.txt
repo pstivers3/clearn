@@ -1,0 +1,300 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 2 of                          */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+
+/*********************************************************************************/
+
+
+   |   void InsertNewSecondNode(void)
+   |   {
+   |      (Declare a pointer variable N, that points to list nodes)
+   |   
+ 5 |      (Allocate a new node and let the pointer variable N point to it)
+   |      (Copy the string "BRU" into the Airport field of N's referent)
+   |      (Change the Link field of N's referent to point to the second node of list L)
+   |      (Change the Link field of the first node of list L to point to N's referent)
+   |   }
+
+Program Strategy 2.11 Inserting a New Second Node in a Linked List
+
+/*********************************************************************************/
+
+
+   |   void InsertNewSecondNode(void)
+   |   {   
+   |      NodeType *N;                                   /* let N be a list node */
+   |
+ 5 |      N = (NodeType *)malloc(sizeof(NodeType));    /* allocate a new node, N */
+   |      strcpy(N->Airport,"BRU");                  /* set N's Airport to "BRU" */
+   |      N->Link = L->Link;          /* let N link to the second node of list L */
+   |      L->Link = N;                           /* let L's first node link to N */
+   |   }
+
+Program (unnumbered) in the running text on page 41
+
+/*********************************************************************************/
+
+
+   |   NodeType *ListSearch(char *A, NodeType *L)
+   |   {
+   |      (Declare N to be a variable that points to nodes) 
+   |
+ 5 |      (Initially, set N to point to the first node of list L)
+   |   
+   |      while (N points to a non-null node on list L ) {
+   |   
+   |         if (the Airport code of N's referent equals A) {
+10 |      
+   |            (return the node pointer in N)
+   |         
+   |         } else {
+   |         
+15 |            (advance the pointer N to point to the next node on list L)
+   |         }
+   |      }
+   |   
+   |      (return N's value, NULL, as the result of the list search)
+20 |   
+   |   }
+
+Program Strategy 2.12 Strategy for List Searching
+
+/*********************************************************************************/
+
+
+   |   NodeType *ListSearch(char *A, NodeType *L)
+   |   {
+   |      NodeType *N;             /* N points to successive nodes on the list L */
+   |      
+ 5 |      /* Initialization */      
+   |         N = L;   /* let N start by pointing to the first node of the list L */
+   |   
+   |      /* While N points to a non-null node on list L */
+   |      /* examine the node to which N points */
+10 |      
+   |         while (N != NULL) {
+   |      
+   |            if (strcmp(N->Airport,A) == 0) {          /* if N's Airport == A */
+   |      
+15 |               return N;                     /* return the node pointer in N */
+   |         
+   |            } else {                                            /* otherwise */
+   |         
+   |               N = N->Link;        /* advance N to the next node on the list */
+20 |         
+   |            }
+   |      
+   |         }
+   |
+25 |      return N;                     /* return NULL if no node's Airport == A */
+   |
+   |   }
+
+Program 2.13 List Searching Program
+
+/*********************************************************************************/
+
+
+   |   void DeleteLastNode(&L)         /* &L gives the address of the variable L */
+   |   {
+   |      
+   |      (Let PreviousNode and CurrentNode contain pointers to list nodes)
+ 5 |      
+   |   
+   |      if (L is not the empty-list) {   
+   |   
+   |         if (L has exactly one node) {
+10 |      
+   |            (free the node's storage, replace L with the empty list,)
+   |            (and return from the procedure)
+   |         
+   |         } else {                /* otherwise, L must have two or more nodes */
+15 |      
+   |            (Initialize a pair of pointers, (PreviousNode,CurrentNode) )
+   |            (to point to the first and second nodes.)
+   |         
+   |            (Advance the pointer pair along L until CurrentNode)
+20 |            (points to the last node}
+   |         
+   |               while (CurrentNode does not point to the last node)  {
+   |                  (advance the pair of pointers to the next pair of nodes)
+   |               }
+25 |         
+   |            (Now PreviousNode points to the next-to-last node on the list)
+   |            (and CurrentNode points to the last node on the list.)
+   |         
+   |            (Finally, change the next-to-last node into the new last node)
+30 |            (and free the space for the discarded last node)
+   |      
+   |         }
+   |   
+   |      }
+35 |
+   |   }
+
+Program Strategy 2.14 Strategy for Deleting the Last Node of a List
+
+/*********************************************************************************/
+
+
+   |   void DeleteLastNode(NodeType **L)       /*Note: **L is the address of the */
+   |   {                                       /* variable L, whose value points */
+   |                                              /* to the first node of list L */
+   |      
+ 5 |      NodeType * PreviousNode, *CurrentNode;
+   |   
+   |      if (*L != NULL) {               /* do nothing if *L was the empty list */
+   |   
+   |         if ((*L)->Link == NULL) {       /* if *L has exactly one node, then */
+10 |         
+   |            free(*L);                            /* free the node's storage, */
+   |            *L = NULL;          /* set L to be the empty list, and terminate */
+   |                  
+   |         } else {           /* otherwise, list L must have two or more nodes */
+15 |      
+   |            /* initialize a pair of pointers, (PreviousNode,CurrentNode) */
+   |            /* to point to the first and second nodes. */
+   |         
+   |               PreviousNode = *L;
+20 |               CurrentNode =(*L)->Link ;
+   |         
+   |
+   |            /* Advance the pointer pair along L until CurrentNode */
+   |            /* points to the last node */
+25 |         
+   |               while (CurrentNode->Link != NULL) {
+   |                  PreviousNode = CurrentNode ;
+   |                  CurrentNode = CurrentNode->Link;
+   |               }
+30 |         
+   |
+   |            /* Now PreviousNode points to the next-to-last node on the list */
+   |            /* and CurrentNode points to the last node on the list. */
+   |         
+35 |               PreviousNode->Link= NULL;         /* last node gets NULL link */
+   |               free(CurrentNode);      /* recycle storage for discarded node */
+   |      
+   |         }
+   |   
+40 |      }
+   |
+   |   }
+
+Program 2.15 Deleting the Last Node of a List
+
+/*********************************************************************************/
+
+
+   |   void InsertNewLastNode(char *A, NodeType **L)        /* Again, expect **L */
+   |   {                                                 /* to be the address of */
+   |                                                /* a variable L containing a */
+   |                                    /* pointer to the first node of the list */
+ 5 |      NodeType *N, *P;
+   |
+   |      /* Allocate a new node N with Airport == A and Link == NULL */
+   |         N = (NodeType *)malloc(sizeof(NodeType));
+   |         strcpy(N->Airport, A);
+10 |         N->Link = NULL;
+   |
+   |      if ( *L == NULL ) {                             /* If list *L is empty,*/
+   |
+   |         *L = N;                        /* let N become the new value for *L */
+15 |      
+   |      } else {                                                 /* Otherwise, */
+   |   
+   |         /* Locate the last node of list L, using pointer variable P */
+   |            P = *L;
+20 |            while (P->Link != NULL) P = P->Link;
+   |      
+   |         /* Finally, link node N onto the end of the list */
+   |            P->Link = N;
+   |      }
+   |   }
+
+Program 2.16 Inserting a New Last Node on a List
+
+/*********************************************************************************/
+
+
+   |   void PrintList(NodeType *L)
+   |   {
+   |      NodeType *N;                 /* N points to successive nodes on list L */
+   |   
+ 5 |
+   |      /* First, print a left parenthesis */
+   |         printf( "(" );
+   |   
+   |      /* Let N start by pointing to the first node on the list L */
+10 |         N = L;
+   |   
+   |      /* Provided N doesn't point to an empty node, print N's Airport */
+   |      /* and advance N to point to the next node on the list */
+   |   
+15 |         while (N != NULL) {
+   |            printf("%s",N->Airport);                   /* print airport code */
+   |            N = N->Link;                /* make N point to next node on list */
+   |            if (N != NULL) printf(", ");        /* print comma between items */
+   |         }
+20 |   
+   |      /* Finally, print a closing right parenthesis */
+   |         printf(")\n");
+   |   
+   |   }
+
+Program 2.17 Printing a List
+
+/*********************************************************************************/
+
+
+   |      /* Here, insert the typedefs and functions defined above for the types */
+   |      /* AirportCode and NodeType and the functions InsertNewLastNode, */
+   |      /* InsertNewSecondNode, DeleteLastNode, and PrintList. Then declare */
+   |      /* a node pointer variable L as shown below: */
+ 5 |
+   |   int main (void)
+   |   {
+   |         NodeType *L;
+   |   
+10 |      /* First, construct the list L == (DUS,ORD,SAN) and print it */
+   |
+   |      /* To start things off, let L be the empty list */
+   |         L = NULL;
+   |
+15 |      /* Insert a new last node in L with airport code "DUS" */
+   |         InsertNewLastNode("DUS",&L);
+   |
+   |      /* Insert a new last node in L with airport code "ORD" */
+   |         InsertNewLastNode("ORD",&L);
+20 |
+   |      /* Insert a new last node in L with airport code "SAN" */
+   |         InsertNewLastNode("SAN",&L);
+   |
+   |      /* Now, print the list, to show what it looks like before changing it */
+25 |         PrintList(L);
+   |      
+   |      /* Then, insert a new second node with the airport code "BRU" */
+   |         InsertNewSecondNode();   
+   |
+30 |      /* Print the modified list */
+   |         PrintList(L);
+   |   
+   |      /* Delete the last node of the list */
+   |         DeleteLastNode(&L);
+35 |   
+   |      /* Finally, print the shortened list */
+   |         PrintList(L);
+   |   
+   |   }
+
+Program 2.18 An Example That Puts Some Pieces Together
+
+/*********************************************************************************/

@@ -1,0 +1,82 @@
+BC310, Assignment 1 - Grades, Paul Stivers, 2/13/00	
+
+** Output sample 1 -  no legitimate entries.
+
+Enter numeric grade, or -1 to end:      -50
+Number was outside of range 0-100
+Try again.
+Enter numeric grade, or -1 to end:      105
+Number was outside of range 0-100
+Try again.
+Enter numeric grade, or -1 to end:      -1
+
+Program terminated by -1
+No legitimate grades entered.
+Press any key to continue
+
+** Sample output 2 - test all boundary conditions, some 
+middle points, and some out of bounds.  Check correct 
+letter grades, average grade, and totals of each letter 
+grade.
+
+Enter numeric grade, or -1 to end:      0
+Letter grade is F
+Enter numeric grade, or -1 to end:      55
+Letter grade is F
+Enter numeric grade, or -1 to end:      59
+Letter grade is F
+Enter numeric grade, or -1 to end:      60
+Letter grade is D
+Enter numeric grade, or -1 to end:      62
+Letter grade is D
+Enter numeric grade, or -1 to end:      69
+Letter grade is D
+Enter numeric grade, or -1 to end:      70
+Letter grade is C
+Enter numeric grade, or -1 to end:      74
+Letter grade is C
+Enter numeric grade, or -1 to end:      79
+Letter grade is C
+Enter numeric grade, or -1 to end:      80
+Letter grade is B
+Enter numeric grade, or -1 to end:      -2
+Number was outside of range 0-100
+Try again.
+Enter numeric grade, or -1 to end:      101
+Number was outside of range 0-100
+Try again.
+Enter numeric grade, or -1 to end:      88
+Letter grade is B
+Enter numeric grade, or -1 to end:      89
+Letter grade is B
+Enter numeric grade, or -1 to end:      90
+Letter grade is A
+Enter numeric grade, or -1 to end:      99
+Letter grade is A
+Enter numeric grade, or -1 to end:      100
+Letter grade is A
+Enter numeric grade, or -1 to end:      1000
+Number was outside of range 0-100
+Try again.
+Enter numeric grade, or -1 to end:      96
+Letter grade is A
+Enter numeric grade, or -1 to end:      -20
+Number was outside of range 0-100
+Try again.
+Enter numeric grade, or -1 to end:      35
+Letter grade is F
+Enter numeric grade, or -1 to end:      84
+Letter grade is B
+Enter numeric grade, or -1 to end:      -1
+
+Program terminated by -1
+
+Average grade = 71
+
+Number of A grades =   4
+Number of B grades =   4
+Number of C grades =   3
+Number of D grades =   3
+Number of F grades =   4
+
+Press any key to continue

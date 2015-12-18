@@ -1,0 +1,20 @@
+// Fig 4.4: listbox.rc
+// ListBox resource file
+
+#include "afxres.h"
+#include "listbox_ids.h"
+
+ListBoxDialog DIALOG   20, 20, 132, 150
+CAPTION "List Box Example"
+{
+    LTEXT         "Choices:", IDC_STATIC,  30,   5, 50,   8
+    LISTBOX       IDC_CHOICES,             30,  15  68,  48
+
+    DEFPUSHBUTTON "Add", IDC_ADD,          50,  54  32,  16
+
+    LTEXT         "Selected:", IDC_STATIC, 30,  80  50,   8
+    LISTBOX       IDC_SELECTED,            30,  90  68,  48,
+                  WS_VSCROLL
+                  
+    PUSHBUTTON    "Clear",  IDC_CLEAR,     50, 130, 30,  15
+}

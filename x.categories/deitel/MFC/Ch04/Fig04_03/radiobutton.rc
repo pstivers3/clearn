@@ -1,0 +1,21 @@
+// Fig. 4.3: radiobutton.rc
+// radio button resource file
+#include <afxres.h>
+#include "radiobutton_ids.h"
+
+CRadioButton DIALOG  50, 50, 115, 130
+CAPTION "Radio Button Example"
+{
+  GROUPBOX        "Flavors",    IDC_STATIC,    15, 10, 80, 50
+  AUTORADIOBUTTON "Chocolate",  IDC_CHOCOLATE, 20, 20, 60, 10,
+                                WS_GROUP
+  AUTORADIOBUTTON "Vanilla",    IDC_VANILLA,   20, 30, 60, 10
+  AUTORADIOBUTTON "Strawberry", IDC_STRAWBERRY,20, 40, 60, 10
+
+  GROUPBOX        "Container",  IDC_STATIC,    15, 60, 80, 40
+  AUTORADIOBUTTON "Cone",       IDC_CONE,      20, 70, 60, 10,
+                                WS_GROUP
+  AUTORADIOBUTTON "Cup",        IDC_CUP,       20, 80, 60, 10
+
+  DEFPUSHBUTTON   "OK",         IDOK,          40,105, 30, 15
+}

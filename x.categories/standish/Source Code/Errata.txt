@@ -1,0 +1,100 @@
+/*********************************************************************************/
+/*                                                                               */
+/*                             <<  ERRATA FILE  >>                               */
+/*                                     for                                       */
+/*            Data Structures, Algorithms, and Software Principles in C          */
+/*                           by Thomas A. Standish                               */
+/*                                                                               */
+/*             Copyright (C) 1995, Addison-Wesley, all rights reserved.          */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/**************************  Table of Error Corrections  *************************/
+     
+     
+     PAGE       WHERE         CHANGE  THIS  ==>  TO THIS
+   ---------  -----------  -------------------------------------------------------
+        
+     221      Fig. 6.12       K 5 g(n)  ==>  K x g(n)   above curve in upper right
+        
+     508      Fig. 12.6       remove horizontal lines from interior of 
+                              cross-hatched rectangles
+        
+     594      Fig. 14.7       replace EmptySet symbols (slashed upper case Oh's)
+                              with right arrows (-->)
+        
+     599      Fig. 14.9       replace EmptySet symbols (slashed upper case Oh's)
+                              with right arrows (-->)
+        
+     727      Ex. A.7.4       Table A.12.726  ==>  Table A.12.
+
+/*********************************************************************************/
+
+   Figure 14.7's output (on page 594) is typographically incorrect.
+   (Right arrows "-->" should replace all slashed Oh symbols for the empty set.)
+   The corrected version of the text in Figure 14.7 is given below.
+
+/* ----------------------------------------------------------------------------- */
+
+     give input string: y * x^2 / (z-3)
+     
+       P  -->    a     { where  a = y }
+       F  -->    P
+       T  -->    F
+       P  -->    a     { where  a = x }
+       F  -->    P
+       P  -->    a     { where  a = 2 }
+       F  -->  F ^ P
+       T  -->  T * F
+       P  -->    a     { where  a = z }
+       F  -->    P
+       T  -->    F
+       E  -->    T
+       P  -->    a     { where  a = 3 }
+       F  -->    P
+       T  -->    F
+       E  -->  E - T
+       P  -->  ( E )
+       F  -->    P
+       T  -->  T / F
+       E  -->    T
+       
+     Do you want to give another string? (y/n) 
+
+/*********************************************************************************/
+
+
+   Figure 14.9's output (on page 599) is typographically incorrect.
+   (Right arrows "-->" should replace all slashed Oh symbols for the empty set.)
+   The corrected version of the text in Figure 14.9 is given below.
+
+/* ----------------------------------------------------------------------------- */
+
+     give input string: (x - y)^2 + 5*z
+       P  -->    a     { where  a = x }    x
+       F  -->    P
+       T  -->    F
+       E  -->    T
+       P  -->    a     { where  a = y }    x y
+       F  -->    P
+       T  -->    F
+       E  -->  E - T                       x y -
+       P  -->  ( E )
+       F  -->    P
+       P  -->    a     { where  a = 2 }    x y - 2
+       F  -->  F ^ P                       x y - 2 ^
+       T  -->    F
+       E  -->    T
+       P  -->    a     { where  a = 5 }    x y - 2 ^ 5
+       F  -->    P
+       T  -->    F
+       P  -->    a     { where  a = z }    x y - 2 ^ 5 z
+       F  -->    P
+       T  -->  T * F                       x y - 2 ^ 5 z *
+       E  -->  E + T                       x y - 2 ^ 5 z * +
+     output = x y - 2 ^ 5 z * +
+     Do you want to give another string? (y/n) n
+
+/*********************************************************************************/
+

@@ -1,0 +1,276 @@
+BC-310,  Final, Paul Stivers, 5/14/00	
+
+=====================================================================
+1.  Program output to verify error trapping during input of
+    account number and PIN. 
+=====================================================================
+
+Welcome to ATM
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  -1
+Enter Pin Code:   5
+Invalid Account Number or Pin, Try Again.
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  2
+Enter Pin Code:   2222
+Invalid Account Number or Pin, Try Again.
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  5
+Enter Pin Code:   5000
+Invalid Account Number or Pin, Try Again.
+
+Sorry you are having trouble.  Please contact a bank representative for help.
+Press any key to continue
+
+=====================================================================
+2.  Program output to verify error trapping in various sections of 
+    program. 
+=====================================================================
+
+Welcome to ATM
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  1
+Enter Pin Code:   1001
+Customer is validated
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   1
+Enter Deposit Amount (000.00):   -20
+
+Deposit amount is -20.00
+Amount you requested is less than or equal to 00.00
+Try Again.
+
+Enter Deposit Amount (000.00):   100
+
+Deposit amount is 100.00
+Balance before deposit is 500.00
+Balance after deposit is 600.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   2
+Enter Withdraw Amount (up to 300.00):   400
+
+Withdraw amount is 400.00
+Amount you requested is over $300.00
+Try Again.
+
+Enter Withdraw Amount (up to 300.00):   600
+
+Withdraw amount is 600.00
+Amount you requested is over $300.00
+Amount you requested is greater than your balance.
+Try Again.
+
+Enter Withdraw Amount (up to 300.00):   -50
+
+Withdraw amount is -50.00
+Amount you requested is less than or equal to 00.00
+Sorry you are having trouble.  Please contact a bank representative for help.
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   2
+Enter Withdraw Amount (up to 300.00):   200
+
+Withdraw amount is 200.00
+Balance before withdrawal is 600.00
+Balance after withdrawal is 400.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   4
+Enter Account Number to transfer to:   11
+Enter Account Number to transfer to:   11
+Enter Account Number to transfer to:   11
+Sorry you are having trouble.  Please contact a bank representative for help.
+
+Enter your choice (1-5):   4
+Enter Account Number to transfer to:   3
+Enter Transfer Amount (up to 300.00):   500
+
+Transfer Amount is 500.00
+Amount you requested is over $300.00.
+Amount you requested is greater than your balance.
+Try Again.
+
+Enter Transfer Amount (up to 300.00):   200
+
+Transfer Amount is 200.00
+
+Balance in sending account ID 1, before transfer is  400.00
+Balance in sending account ID 1, after transfer is  200.00
+Balance in receiving account ID 3, before transfer is  500.00
+Balance in receiving account ID 3, after transfer is  700.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   5
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  0
+Enter Pin Code:   9999
+
+   Name      Acct_ID   PIN       Balance
+  Person_1      1      1001      200.00
+  Person_2      2      2002      500.00
+  Person_3      3      3003      700.00
+  Person_4      4      4004      500.00
+  Person_5      5      5005      500.00
+  Person_6      6      6006      500.00
+  Person_7      7      7007      500.00
+  Person_8      8      8008      500.00
+  Person_9      9      9009      500.00
+  Person_10    10      1010      500.00
+Press any key to continue
+
+=====================================================================
+3.  Program output to verify arithmetic, including list of final 
+    balances at end of program.  Checked OK.
+=====================================================================
+
+Welcome to ATM
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  2
+Enter Pin Code:   2002
+Customer is validated
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   1
+Enter Deposit Amount (000.00):   200
+
+Deposit amount is 200.00
+Balance before deposit is 500.00
+Balance after deposit is 700.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   4
+Enter Account NUMBER to transfer to:   5
+Enter Transfer Amount (up to 300.00):   300
+
+Transfer Amount is 300.00
+
+Balance in sending account ID 2, before transfer is  700.00
+Balance in sending account ID 2, after transfer is  400.00
+Balance in receiving account ID 5, before transfer is  500.00
+Balance in receiving account ID 5, after transfer is  800.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+Enter your choice (1-5):   5
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  9
+Enter Pin Code:   9009
+Customer is validated
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   1
+Enter Deposit Amount (000.00):   202
+
+Deposit amount is 202.00
+Balance before deposit is 500.00
+Balance after deposit is 702.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   2
+
+Enter Withdraw Amount (up to 300.00):   100
+
+Withdraw amount is 100.00
+Balance before withdrawal is 702.00
+Balance after withdrawal is 602.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   3
+
+Your balance is 602.00
+
+1 = Deposit
+2 = Withdraw
+3 = Balance
+4 = Transfer
+5 = Exit
+
+Enter your choice (1-5):   5
+
+(Account Number 0 and PIN 9999 to end.)
+Enter Account Number:  0
+Enter Pin Code:   9999
+
+   Name      Acct_ID   PIN       Balance
+  Person_1      1      1001      500.00
+  Person_2      2      2002      400.00
+  Person_3      3      3003      500.00
+  Person_4      4      4004      500.00
+  Person_5      5      5005      800.00
+  Person_6      6      6006      500.00
+  Person_7      7      7007      500.00
+  Person_8      8      8008      500.00
+  Person_9      9      9009      602.00
+  Person_10    10      1010      500.00
+Press any key to continue
+
+=====================================================================
+4.  Verified combinations of legitimate and erroneous data input to
+    check for correct error trapping and expected results.  
+    Output not shown here.
+=====================================================================
+
+--
+end

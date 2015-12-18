@@ -1,0 +1,354 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 9 of                          */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   |   ItemType Remove(Heap *H)
+   |   {
+   |      NodeType  L;             /* let L be the last node of H in level order */
+   |      NodeType  R;                  /* R is used refer to the root node of H */
+ 5 |      ItemType  ItemToRemove;           /* temporarily stores item to remove */
+   |
+   |      if  (*H is not empty)  {
+   |   
+   |         /* Remove the highest priority item which is stored in */
+10 |         /* H's root node, R */
+   |            ItemToRemove = (the value stored in the root node, R, of H);
+   |   
+   |         /* Move L's value into the root of H, and delete L */
+   |            (R's value) = (the value in leaf L);
+15 |            (delete node L);
+   |   
+   |         /* Reheapify the values in the remaining nodes of H starting at */
+   |         /* the root, R, by applying the algorithm in Program Strategy 9.15 */
+   |         /* to the root node, R, in heap H */
+20 |            if  (H is not empty)  {
+   |               (Reheapify the heap H starting at node R);
+   |            }
+   |
+   |         return (ItemToRemove);
+25 |      }
+   |   }
+
+Program Strategy 9.14 Removing an Item from a Heap
+
+/*********************************************************************************/
+
+
+   |   void (Reheapify the heap *H starting at node N)
+   |   {
+   |      NodeType  N, M;
+   |      ItemType  V1,V2;
+ 5 |
+   |
+   |      (let V1 refer to N's value)
+   |      
+   |      while (node N still has children)  {
+10 |
+   |         (Let M be the child of node N having the larger value, V2)
+   |
+   |         if ( V1 >= V2 ) {
+   |            return;
+15 |         } else {
+   |            (exchange the values in nodes N and M);
+   |            (let N refer to node M and let V1 refer to N's value);
+   |         }
+   |
+20 |      }
+   |
+   |   }
+
+Program Strategy 9.15 Reheapifying a Heap Starting at Node N
+
+/*********************************************************************************/
+
+
+   |   void Heapify(Heap *H)
+   |   {
+   |      NodeType   N;
+   |
+ 5 |      for (N = the internal nodes of H in reverse level-order)  {
+   |
+   |         (Reheapify the heap H starting at node N);
+   |         
+   |      }
+10 |
+   |   }
+
+Program Strategy 9.16 Heapifying a Complete Binary Tree
+
+/*********************************************************************************/
+
+
+   |   /*
+   |    *   The Priority Queue Types Header File "PQTypes.h"
+   |    */
+   |
+ 5 |   /* ------------< begin file "PQTypes.h" >------------ */
+   |      
+   |
+   |      #define  MAXCOUNT 10
+   |
+10 |      typedef  int  PQItem;
+   |
+   |      typedef  PQItem  PQArray[MAXCOUNT + 1];
+   |
+   |      typedef  struct {
+15 |                  int      Count;
+   |                  PQArray  ItemArray;
+   |               }PriorityQueue;
+   |
+   |   /* ------------< end-of-file "PQTypes.h" >------------ */
+
+Program 9.20 Priority Queue Types Header File for the Heap Representation
+
+/*********************************************************************************/
+
+
+   |   /*  ------------< begin file "PQInterface.h" >------------    */
+   |
+   |   #include "PQTypes.h"           /* defines types: PQItem and PriorityQueue */
+   |
+ 5 |   extern void Initialize(PriorityQueue *PQ);         /* sets PQ to be empty */
+   |   extern int Empty(PriorityQueue *PQ);               /* true if PQ is empty */
+   |   extern int Full(PriorityQueue *PQ);                 /* true if PQ is full */
+   |   extern void Insert(PQItem Item, PriorityQueue *PQ);  /* puts Item into PQ */
+   |   extern PQItem Remove(PriorityQueue *PQ);          /* removes Item from PQ */
+10 |
+   |   /*  ------------< end-of-file "PQInterface.h" >------------  */
+   |
+   |   /*  ------------< begin file "PQImplementation.c" >------------  */
+   |   
+15 |   #include "PQInterface.h"
+   |
+   |   /*--------------------------------------------------*/
+   |
+   |      void Initialize(PriorityQueue *PQ)
+20 |      {
+   |         PQ->Count = 0;
+   |      }
+   |
+   |   /*--------------------------------------------------*/
+25 |
+   |      int Empty(PriorityQueue *PQ)
+   |      {
+   |         return (PQ->Count == 0);
+   |      }
+30 |
+   |   /*--------------------------------------------------*/
+   |
+   |      int Full(PriorityQueue *PQ)
+   |      {
+35 |         return (PQ->Count == MAXCOUNT);
+   |      }
+   |
+   |   /*--------------------------------------------------*/
+   |
+40 |      void Insert(PQItem Item, PriorityQueue *PQ)
+   |      {   
+   |         int  ChildLoc;                         /* location of current child */
+   |         int  ParentLoc;                          /* parent of current child */
+   |
+45 |         (PQ->Count)++;                       /* caution: insertion does not */
+   |         ChildLoc = PQ->Count;                     /* guard against overflow */
+   |         ParentLoc = ChildLoc/2;
+   |      
+   |   
+50 |         while (ParentLoc != 0) {             /* while a parent still exists */
+   |            if (Item <= PQ->ItemArray[ParentLoc]) {
+   |               PQ->ItemArray[ChildLoc] = Item;                 /* store Item */
+   |               return;                                         /* and return */
+   |            } else {                /* here, Item > PQ->ItemArray[ParentLoc] */
+55 |               PQ->ItemArray[ChildLoc] = PQ->ItemArray[ParentLoc];
+   |               ChildLoc = ParentLoc;
+   |               ParentLoc = ParentLoc/2;
+   |            }
+   |         }
+60 |      
+   |         PQ->ItemArray[ChildLoc] = Item;  /* Put Item in final resting place */
+   |
+   |      }
+   |
+65 |   /*--------------------------------------------------*/
+   |
+   |      PQItem Remove(PriorityQueue *PQ)
+   |      {
+   |         int     CurrentLoc;            /* location currently being examined */
+70 |         int     ChildLoc;                          /* a child of CurrentLoc */
+   |         PQItem  ItemToPlace;                   /* an Item value to relocate */
+   |         PQItem  ItemToReturn;           /* the removed Item value to return */
+   |
+   |
+75 |         if (Empty(PQ)) return;       /* result is undefined if PQ was empty */
+   |
+   |         /* Initializations */
+   |            ItemToReturn = PQ->ItemArray[1];        /* value to return later */
+   |            ItemToPlace = PQ->ItemArray[PQ->Count];     /* last leaf's value */
+80 |            (PQ->Count)--;                /* delete last leaf in level order */
+   |            CurrentLoc = 1;                     /* CurrentLoc starts at root */
+   |            ChildLoc = 2*CurrentLoc; /* ChildLoc starts at root's left child */
+   |         
+   |
+85 |         while (ChildLoc <= PQ->Count) {       /* while a child still exists */
+   |            
+   |            /* Set ChildLoc to location of larger child of CurrentLoc */
+   |               if (ChildLoc < PQ->Count) {          /* if right child exists */
+   |                  if  ( PQ->ItemArray[ChildLoc+1] > 
+90 |                               PQ->ItemArray[ChildLoc]) {
+   |                         ChildLoc++;
+   |                  }
+   |               }
+   |
+95 |
+   |            /* If item at ChildLoc is larger than ItemToPlace, */
+   |            /* move this larger item to CurrentLoc, and move */
+   |            /* CurrentLoc down. */
+   |               if (PQ->ItemArray[ChildLoc] <= ItemToPlace) {
+100|                  PQ->ItemArray[CurrentLoc] = ItemToPlace;
+   |                  return (ItemToReturn);
+   |               } else {
+   |                  PQ->ItemArray[CurrentLoc]=PQ->ItemArray[ChildLoc];
+   |                  CurrentLoc = ChildLoc;
+105|                  ChildLoc = 2 * CurrentLoc;
+   |               }
+   |         }
+   |         
+   |         /* final placement of ItemToPlace */
+110|            PQ->ItemArray[CurrentLoc] = ItemToPlace;
+   |
+   |         /* return the Item originally at the root */
+   |            return (ItemToReturn);
+   |      }
+115|
+   |   /*--------------------------------------------------*/
+   |
+   |   /*  ------------< end-of-file "PQImplementation.c" >------------  */
+
+Program 9.21 Implementation of Priority Queues Using Heaps
+
+/*********************************************************************************/
+
+
+   |   void Traverse(TreeNode *T, OrderOfTraversal TraversalOrder)
+   |   {
+   |      /* to visit T's nodes in the order specified by the */
+   |      /* TraversalOrder parameter */
+ 5 |
+   |      if (T != NULL) {                           /* if T == NULL, do nothing */
+   |
+   |         if (TraversalOrder == PreOrder)  {
+   |         
+10 |            Visit(T);
+   |            Traverse(T->LLink,PreOrder);
+   |            Traverse(T->RLink,PreOrder);
+   |         
+   |         } else if (TraversalOrder == InOrder) {
+15 |         
+   |            Traverse(T->LLink,InOrder);
+   |            Visit(T);
+   |            Traverse(T->RLink,InOrder);
+   |         
+20 |         } else if (TraversalOrder == PostOrder) {
+   |
+   |            Traverse(T->LLink,PostOrder);
+   |            Traverse(T->RLink,PostOrder);
+   |            Visit(T);
+25 |         }
+   |      }
+   |   }
+
+Program 9.28 Generalized Recursive Traversal Procedure
+
+/*********************************************************************************/
+
+
+   |   #include <stdio.h>
+   |   #include "StackInterface.h"                   /* to use the operations of */
+   |                                                 /* Program 7.3 in Chapter 7 */
+   |   void PreOrderTraversal(TreeNode *T)
+ 5 |   {
+   |      Stack  S;
+   |      TreeNode  *N;
+   |
+   |      InitializeStack(&S);   /* initialize the stack S to be the empty stack */
+10 |      Push(T,&S);                         /* push the pointer T onto stack S */
+   |
+   |      while (!Empty(&S)) {
+   |   
+   |         Pop(&S,&N);                          /* pop top pointer of S into N */
+15 |   
+   |         if (N != NULL) {
+   |            printf("%c", N->Symbol);    /* when visiting N, print its symbol */
+   |            Push(N->RLink,&S);                  /* push right pointer onto S */
+   |            Push(N->LLink,&S);                   /* push left pointer onto S */
+20 |         }
+   |      
+   |      }
+   |   }
+
+Program 9.29 Preorder Traversal of an Expression Tree Using a Stack
+
+/*********************************************************************************/
+
+
+   |   #include <stdio.h>
+   |   #include "QueueInterface.h"       /* to use the operations of Program 7.4 */
+   |
+   |   void LevelOrderTraversal(TreeNode *T)
+ 5 |   {   
+   |      Queue Q; TreeNode *N;
+   |
+   |      InitializeQueue(&Q);   /* initialize the queue Q to be the empty queue */
+   |      Insert(T,&Q);                     /* insert the pointer T into queue Q */
+10 |      while (!Empty(&Q)) {
+   |         Remove(&Q,&N);       /* remove first pointer of Q and put it into N */
+   |         if (N != NULL) {
+   |            printf("%c",N->Symbol);
+   |            Insert(N->LLink,&Q);         /* insert left pointer on rear of Q */
+15 |            Insert(N->RLink,&Q);        /* insert right pointer on rear of Q */
+   |         }
+   |      }
+   |   }
+
+Program 9.30 LevelOrder Binary Tree Traversal Using Queues
+
+/*********************************************************************************/
+
+
+   |   typedef  struct TreeNodeTag {
+   |               AirportCode          Airport;      
+   |               struct TreeNodeTag  *LeftLink;
+   |               struct TreeNodeTag  *RightLink;
+ 5 |            }TreeNode;
+   |
+   |   TreeNode *BinaryTreeSearch(AirportCode A, TreeNode *T)
+   |   {   
+   |      TreeNode *N;  int result;
+10 |
+   |      N = T;
+   |      while (N != NULL) {   
+   |         if ( (result = strcmp(A,N->Airport)) == 0) {
+   |            return(N);                  /* N points to the node containing A */
+15 |         } else if (result < 0) {
+   |            N = N->LeftLink;       /* let N point to the left subtree's root */
+   |         } else {
+   |            N = N->RightLink;     /* let N point to the right subtree's root */
+   |         }
+20 |      }
+   |      return (N);
+   |   }
+
+Program of Exercise 9.7.1 for Searching in Binary Search Trees
+
+/*********************************************************************************/
+

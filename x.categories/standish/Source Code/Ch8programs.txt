@@ -1,0 +1,207 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 8 of                          */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   |   void PrintItem(int i, NodeType *L);
+   |   {
+   |
+   |      while ( ( i > 1 ) && ( L != NULL) ) {             /* set L to point to */
+ 5 |         L = L->Link;                            /* the ith item of the list */
+   |         i--;
+   |      }
+   |
+   |
+10 |      if ( ( i == 1) && (L != NULL ) ) {
+   |         printf("%s", L->Item);     /* print the ith item provided it exists */
+   |      } else {
+   |         printf("Error—attempt to print an item that is not on the list.\n");
+   |      }
+15 |
+   |   }
+
+Program 8.4 Printing the ith Item of a Linked List
+
+/*********************************************************************************/
+
+
+   |   #define  TRUE  1
+   |   #define  FALSE 0
+   |   
+   |   typedef  struct GenListTag {
+ 5 |                     struct  GenListTag  *Link;
+   |                     int  Atom;
+   |                     union SubNodeTag {
+   |                        ItemType            Item;
+   |                        struct GenListTag  *SubList;
+10 |                     }SubNode;
+   |            }GenListNode;
+   |
+
+Program 8.9 Generalized List Nodes
+
+/*********************************************************************************/
+
+
+   |   void PrintList(GenListNode *L)
+   |   {
+   |      GenListNode *G;
+   |
+ 5 |      printf("(");
+   |      G = L;                            /* G points to successive nodes of L */
+   |      while (G != NULL) {              /* then the atomic item or sublist in */
+   |         if (G->Atom) {                                 /* node G is printed */
+   |            printf("%d",G->SubNode.Item);
+10 |         } else {                                            /* sublists are */
+   |            PrintList(G->SubNode.SubList);            /* printed recursively */
+   |         } 
+   |         if (G->Link != NULL) printf(" , ");      /* commas follow each item */
+   |         G = G->Link;                                /* except the last item */
+15 |      }
+   |      printf(")");
+   |   }
+
+Program 8.12 Printing Generalized Lists
+
+/*********************************************************************************/
+
+
+   |   char *Concat(char *S, char *T);
+   |   {
+   |      char *P;
+   |      char *temp
+ 5 |      
+   |      /* P is a pointer used in the concatenation of S and T during */
+   |      /* the time that the concatenation is "under construction."  */
+   |      /* The pointer temp remembers the starting position of P. */
+   |
+10 |      /* Allocate space for the concatenation of S and T, plus 1. */
+   |         P = (char *)malloc( 1 + strlen(S) + strlen(T) );
+   |            
+   |      /* Let temp remember the starting position of P. */
+   |         temp = P;
+15 |   
+   |      /* Copy the contents of S into P up until the end-of-string null char. */
+   |         while ( (*P++ = *S++) != '\0' ) 
+   |            ;
+   |
+20 |      /* Move back one character to overwrite the end-of-string null char. */
+   |         P--;
+   |   
+   |      /* Copy the contents of T into P immediately after the copy of S in P. */
+   |         while ( (*P++ = *T++) != '\0' )
+25 |            ;
+   |
+   |      /* Return the starting position of P as the pointer to the result. */
+   |         return temp;
+   |   }
+
+Program 8.17 Concatenating Two C Strings
+
+/*********************************************************************************/
+
+
+   |   /* Insert Program 8.9 declaring the type GenListNode. */
+   |
+   |      int A[100];
+   |      
+ 5 |      GenListNode *L;
+   |      
+
+Program 8.21 Two Global Variables in a C Program
+
+/*********************************************************************************/
+
+
+   |   L = (GenListNode *)malloc(sizeof(GenListNode));         /* allocate a new */
+   |                                  /* list node and put a pointer to it in L. */
+20 |   L->SubNode.Item = A[99];      /* set L's Item member to the integer A[99] */
+   |   L->Link = NULL;                            /* set L's Link member to NULL */
+
+Program 8.22 Some Statements in Program P
+
+/*********************************************************************************/
+
+
+   |   #define  FREE      0
+   |   #define  RESERVED  1
+   |   
+   |   /*  Each ListNode has a MarkBit which is either FREE or RESERVED  */
+ 5 |      
+   |      typedef  struct NodeTag {
+   |                  short            MarkBit;              /* FREE or RESERVED */
+   |                  struct NodeTag  *Item;
+   |                  struct NodeTag  *Link;
+10 |               }ListNode;
+   |
+   |   /* Assume further that all ListNodes are allocated inside a region of */
+   |   /* memory as an array of nodes called the ListNodeArray, as follows: */
+   |
+15 |      ListNode ListNodeArray[ListNodeArraySize];
+   |      ListNode *Avail;       /* Avail will point to the available space list */
+   |
+   |   void GarbageCollection(void)
+   |   {
+20 |      int i;        /* i is a local variable which indexes the ListNodeArray */
+   |
+   |      /* Phase 1—Initialization Phase—mark all ListNodes FREE */
+   |
+   |         for (i = 0; i < ListNodeArraySize; ++i) {
+25 |            ListNodeArray[i].MarkBit = FREE;
+   |         }
+   |
+   |
+   |      /* Phase 2—Marking Phase—mark all ListNodes in use RESERVED */
+30 |
+   |         (Use the function MarkListNodesInUse of Program Strategy 8.24)
+   |         (to mark all list nodes in use)
+   |
+   |      /* Phase 3—Gathering Phase—link all FREE ListNodes together */
+35 |
+   |         Avail = NULL;
+   |         for (i = 0; i < ListNodeArraySize; ++i) {
+   |            if (ListNodeArray[i].MarkBit == FREE) {
+   |               ListNodeArray[i].Link = Avail;
+40 |               Avail = (ListNode *)(&ListNodeArray[i]);
+   |            }
+   |         }       /* at the conclusion, Avail is the new available space list */
+   |   
+   |   }
+
+Program Strategy 8.23 Garbage Collection by Marking and Gathering
+
+/*********************************************************************************/
+
+
+   |   void MarkListNodesInUse(ListNode *L)
+   |   {
+   |
+   |      if ( (L != NULL) && (L->MarkBit != RESERVED) )  {
+ 5 |      
+   |         L->MarkBit = RESERVED;
+   |         
+   |      
+   |         if (L->Item is a pointer to a ListNode) {
+10 |            MarkListNodesInUse(L->Item);
+   |         }
+   |      
+   |         
+   |         MarkListNodesInUse(L->Link);
+15 |      }
+   |
+   |   }
+
+Program Strategy 8.24 Marking List Nodes in Use
+
+/*********************************************************************************/
+

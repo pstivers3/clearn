@@ -1,0 +1,483 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 13 of                         */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   /* defined constant */
+
+      #define  n  AnyArbitrarySize                /* n gives the number of items */
+                                                    /* in the array to be sorted */
+   /* type definitions */
+
+      typedef  T  KeyType;                  /* where T == int, float, string, or */
+                                                  /* whatever your keys' type is */
+      typedef  KeyType  SortingArray[n] ;
+
+   /* variable declaration */
+
+      SortingArray  A;              /* A[0:n-1] is an array of keys to be sorted */
+
+Program 13.5 Declarations Assumed for Sorting Algorithms
+
+/*********************************************************************************/
+
+
+   |   void PriorityQueueSort(SortingArray A)
+   |   {   
+   |      (Let Q be an initially empty output queue)
+   |      (Let PQ be a priority queue)
+   |      KeyType  K;   
+ 5 |
+   |   
+   |      (Organize the keys in A into a priority queue, PQ)
+   |   
+   |      while (PQ is not empty) {
+10 |         
+   |         (Remove the largest key, K, from PQ)
+   |         (Insert key, K, on the rear of output queue, Q)
+   |      
+   |      }
+15 |
+   |      (Move the keys in Q into the array A in ascending sorted order)
+   |   
+   |   }
+
+Program Strategy 13.6 Abstract Priority Queue Sorting
+
+/*********************************************************************************/
+
+
+   |   void SelectionSort(SortingArray A)
+   |   {
+   |      
+   |         int       i, j, k;
+ 5 |         KeyType   Temp;
+   |   
+   |   
+   |      /* Initially, Q is empty, and PQ contains all keys in A, so the index, i, */
+   |      /* of the last key in PQ is set to n-1, the index of the last key in A. */
+10 |
+   |         i = n - 1;
+   |
+   |   
+   |      /* While PQ contains more than one key, */
+15 |      /* identify and move the largest key in PQ into Q */
+   |
+   |         while ( i > 0) {
+   |         
+   |            /* Let j initially point to the last key in PQ */
+20 |               j = i;   
+   |            
+   |            /* Scan remaining positions in 0:i-1 to find largest key, A[j] */
+   |               for (k = 0; k < i; ++k) {
+   |                  if (A[k] > A[j])  j = k ;
+25 |               }      
+   |            
+   |            /* Swap the largest key, A[j], and the last key, A[i] */
+   |               Temp = A[i]; A[i] = A[j]; A[j] = Temp;
+   |         
+30 |            /* Move boundary between PQ and Q downward one position */
+   |               i--;
+   |         
+   |         }
+   |   
+   |   }
+
+Program 13.9 SelectionSort as a Refinement of Priority Queue Sort
+
+/*********************************************************************************/
+
+
+   |   void HeapSort(SortingArray A)
+   |   {
+   |         int       i;
+   |         KeyType   Temp;
+ 5 |
+   |      /* Heapify all subtrees except the subtree containing the root */
+   |
+   |         for (i = (n / 2); i > 1; --i) {
+   |            SiftUp(A,i,n);
+10 |         }
+   |   
+   |
+   |      /* Reheapify starting at root, remove root, put it on output queue, and */
+   |      /* replace root with last leaf in level order, until heap contains one key */
+15 |
+   |         for (i = n; i > 1; --i) {
+   |            SiftUp(A,1,i);
+   |            Temp = A[1]; A[1] = A[i]; A[i] = Temp;     /* swap A[1] and A[i] */
+   |         }
+   |   }
+
+/* ----------------------------------------------------------- */
+
+   |   void SiftUp(SortingArray A, int i, int n)
+   |   {
+   |      /* Let i point to the root and let n point to the last leaf in level order */
+   |
+ 5 |      /* assume: typedef  enum  {false, true} Boolean; has been declared */
+   |
+   |         int j;  KeyType RootKey;  Boolean NotFinished;
+   |
+   |      /* Let RootKey be the key at the root */
+10 |         RootKey = A[i];
+   |
+   |      /* Let j point to the left child of i */
+   |         j = 2*i;
+   |         NotFinished = (j <= n);  /* SiftUp is not finished if j exists in the tree */
+15 |
+   |      /* Move any larger child that is bigger than the root key upward one */
+   |      /* level in the tree */
+   |         while (NotFinished) {
+   |         
+20 |            if (j < n) {    /* if a right child of i also exists in the tree */
+   |               if (A[j+1]>A[j]) j++;   /* set j to point to the larger child */
+   |            }
+   |      
+   |            if (A[j] <= RootKey) {  /* if the larger child is not bigger than*/
+25 |               NotFinished = false;    /* the root key, no more keys sift up */
+   |            } else {
+   |               A[i] = A[j];    /* move larger child up one level in the tree */
+   |               i = j;             /* now, let i point to the larger child, j */
+   |               j = 2*i;        /* and let j point to the new left child of i */
+30 |               NotFinished = (j <= n);         /* SiftUp is not finished iff */
+   |            }                                        /* j exists in the tree */
+   |
+   |         }
+   |
+35 |      /* Final placement of the root key */
+   |         A[i] = RootKey;
+   |
+   |   }
+
+Program 13.10 HeapSort
+
+/*********************************************************************************/
+
+
+   |   void Sort(SortingArray A, int m, int n) /* to sort the subarray A[m:n] of */
+   |   {                                         /* array A into ascending order */
+   |
+   |      if (there is more than one item to sort in A[m:n]) {
+ 5 |         (Divide A[m:n] into two subarrays A[m:i] and A[j:n])
+   |         (Sort the subarray A[m:i])
+   |         (Sort the subarray A[j:n])
+   |         (Combine the two sorted subarrays to yield the sorted original array)
+   |      }
+   |   }
+
+Program Strategy 13.11 Divide-and-Conquer Sorting Strategy
+
+/*********************************************************************************/
+
+
+   |   void MergeSort(SortingArray A, int m, int n)       /*to sort the subarray */
+   |   {                               /* A[m:n] of array A into ascending order */
+   |
+   |      if (there is more than one item to sort in A[m:n]) {
+ 5 |         (divide A[m:n] into two halves, LeftArray and RightArray)
+   |         (MergeSort the LeftArray A[m:middle])
+   |         (MergeSort the RightArray A[middle+1:n])
+   |         (Merge LeftArray and RightArray to obtain the result)
+   |      }
+   |   }
+
+Program Strategy 13.12 Strategy for MergeSort
+
+/*********************************************************************************/
+
+
+   |   void QuickSort(SortingArray A, int m, int n)       /*to sort the subarray */
+   |   {                               /* A[m:n] of array A into ascending order */
+   |
+   |      if (there is more than one key to sort in A[m:n]) {
+ 5 |         (Partition A[m:n] into a LeftPartition and a RightPartition)
+   |         (using one of the keys in A[m:n] as a pivot key.)
+   |         (QuickSort the LeftPartition)
+   |         (QuickSort the RightPartition)
+   |      }
+   |   }
+
+Program Strategy 13.13 Strategy for QuickSort
+
+/*********************************************************************************/
+
+
+   |   void QuickSort(SortingArray A, int m, int n)       /*to sort the subarray */
+   |   {                               /* A[m:n] of array A into ascending order */
+   |      int i, j;
+   |
+ 5 |      if (m < n) {
+   |        i = m; j = n; /* Initially i and j point to the first and last items */
+   |        Partition(A,&i,&j);      /* partitions A[m:n] into A[m:j] and A[i:n] */
+   |        QuickSort(A,m,j);
+   |        QuickSort(A,i,n);
+10 |      }
+   |   }
+
+Program 13.14 QuickSort
+
+/*********************************************************************************/
+
+
+   |   void Partition(SortingArray A, int *i, int *j)
+   |   {
+   |      KeyType Pivot, Temp;
+   |
+ 5 |      Pivot = A[ ( *i + *j ) / 2 ] ;         /* choose the middle key as the pivot */
+   |   
+   |      do {
+   |      
+   |         while (A[*i] < Pivot) (*i)++;  /* Find leftmost i such that A[i] >= Pivot.*/
+10 |      
+   |         while (A[*j] > Pivot) (*j)--; /* Find rightmost j such that A[j] <= Pivot.*/
+   |      
+   |         if (*i <= *j) {         /* if i and j didn't cross over one another, swap */
+   |               Temp = A[*i]; A[*i] = A[*j]; A[*j] = Temp;         /* A[i] and A[j] */
+15 |               (*i)++;                                   /* move i one space right */
+   |               (*j)--;                                    /* move j one space left */
+   |         }
+   |      
+   |      } while (*i <= *j);        /* while the i and j pointers haven't crossed yet */
+20 |
+   |   }
+
+Program 13.15 QuickSort's Partition Algorithm
+
+/*********************************************************************************/
+
+
+   |   void InsertionSort(SortingArray A)
+   |   {
+   |      /* assume: typedef  enum  {false, true} Boolean; has been declared */
+   |
+ 5 |         int      i, j;
+   |         KeyType  K;
+   |         Boolean  NotFinished;
+   |      
+   |      
+10 |       /* For each i in the range 1:n-1, let key K be the key, A[i]. Then */
+   |       /* insert K into the subarray A[0:i -1] in ascending order */
+   |
+   |         for (i = 1;  i < n;  ++i)  {
+   |            /* Move each key bigger than K in A[0:i -1] */
+15 |            /* one space to the right */   
+   |               K = A[i];
+   |               j = i;
+   |               NotFinished = (A[j -1] > K);
+   |         
+20 |            while (NotFinished) {
+   |               A[j] = A[j -1];        /* move A[j -1] one space to the right */
+   |               j--;
+   |               if (j > 0) {
+   |                  NotFinished = (A[j -1] > K);
+25 |               } else {
+   |                  NotFinished = false;
+   |               }
+   |            }
+   |      
+30 |            /* Move key K into hole opened up by moving */
+   |            /* previous keys to the right */
+   |               A[j] = K;
+   |         }
+   |   }
+
+Program 13.21 The InsertionSort Algorithm
+
+/*********************************************************************************/
+
+
+   |   void ProxmapSort(ProxmapSortingArray A)
+   |   {
+   |   /* assume: typedef  enum  {false, true} Boolean; has been declared */
+   |
+ 5 |      int      i, j, RunningTotal, TempInt;
+   |      KeyType  KeyToInsert, TempKey;
+   |      Boolean  NotInserted;
+   |   
+   |   /* Initialize Status and Proxmap */
+10 |      for (i = 0; i < n; ++i)  {
+   |         A[i].Proxmap = 0;         /* initialize all Proxmap entries to zero */
+   |         A[i].Status = NotYetMoved;        /* initialize status of each slot */
+   |      }
+   |   
+15 |   /* Count hits when keys are mapped into MapKey locations */
+   |      for (i = 0; i < n; ++i)  {
+   |         j = MapKey(A[i].Key);
+   |         A[i].InsertionLoc = j;        /* save value of MapKey for later use */
+   |         A[j].Proxmap++;                /* store hit counts in Proxmap field */
+20 |      }
+   |
+   |   /* Convert hit counts to a Proxmap */
+   |      RunningTotal = 0;
+   |      for (i = 0; i < n; ++i)  {
+25 |         if (A[i].Proxmap > 0) {                /* any non-zero hit count is */
+   |            TempInt = A[i].Proxmap;          /* converted to a proxmap entry */
+   |            A[i].Proxmap = RunningTotal;              /* by substituting the */
+   |            RunningTotal += TempInt;                        /* running total */
+   |         }
+30 |      }
+   |   
+   |   /* Compute insertion locations */
+   |      for (i = 0; i < n; ++i)  {
+   |         A[i].InsertionLoc = A[A[i].InsertionLoc].Proxmap;
+35 |      }
+   |   
+   |   /* Now, A[i].InsertionLoc gives the insertion location for A[i].Key */
+   |   /* and A[i].Status is NotYetMoved for all i in 0:n-1 */
+   |   
+40 |   /* Rearrange A[i] in situ in A into ascending sorted order */
+   |      for (i = 0; i < n; ++i)  {
+   |      
+   |   /* Find next key in ascending order of i that is NotYetMoved */
+   |         if (A[i].Status == NotYetMoved) {
+45 |            j = A[i].InsertionLoc;
+   |            KeyToInsert = A[i].Key;     /* pick up A[i]'s Key as KeyToInsert */
+   |            A[i].Status = Empty;   /* and plan to insert it in A[j], where j */
+   |            NotInserted = true;                 /* is its insertion location */
+   |         
+50 |            while (NotInserted) {
+   |               if (A[j].Status == NotYetMoved)  {
+   |               
+   |                  TempKey = A[j].Key;                    /* swap KeyToInsert */
+   |                  A[j].Key = KeyToInsert;                /* with A[j]'s key. */
+55 |                  KeyToInsert = TempKey;          /* mark A[j] as moved, and */
+   |                  A[j].Status = Moved;     /* plan to insert the KeyToInsert */
+   |                  j = A[j].InsertionLoc;     /* in its insertion location, j */
+   |               
+   |               } else if (A[j].Status == Moved) {      /* insertion sort the */
+60 |                        /* KeyToInsert */
+   |                  if (KeyToInsert < A[j].Key) {      /* in the subarray of A */
+   |                                                       /* beginning at j. If */
+   |                     TempKey = A[j].Key;           /* KeyToInsert < A[j].Key */
+   |                     A[j].Key = KeyToInsert;             /* swap KeyToInsert */
+65 |                     KeyToInsert = TempKey;               /* with A[j]'s key */
+   |                  }   
+   |                     
+   |                  j++;                     /* and move to next Key at A[j+1] */
+   |               
+70 |               } else {                              /* A[j].Status == Empty */
+   |                  A[j].Key = KeyToInsert;              /* insert KeyToInsert */
+   |                  A[j].Status = Moved;                 /* in the empty entry */
+   |                  NotInserted = false;
+   |               }
+75 |            }
+   |         }
+   |      } 
+   |   }
+
+Program 13.32 ProxmapSort
+
+/*********************************************************************************/
+
+
+   |   int value(char L)
+   |   {   
+   |      return (int)(L) - (int)('A');   /* returns value of the letter 'L', base 26 */
+   |   }
+ 5 |
+   |   int Base26Value(AirportCodeKey K)
+   |   {   
+   |      return value(K[0])*26*26 + value(K[1])*26 + value(K[2]);
+   |   }
+
+Program 13.33 Base-26 Value of an Airport Code Key
+
+/*********************************************************************************/
+
+
+   |   void ShellSort(SortingArray A)
+   |   {
+   |      int  i, delta;
+   |      
+ 5 |      delta = n;
+   |      
+   |      do {
+   |         delta = 1 + delta / 3;
+   |         
+10 |         for (i = 0; i < delta; ++i) {
+   |            DeltaInsertionSort(A,i,delta);
+   |         }
+   |      
+   |      } while (delta > 1);
+   |   }
+
+Program 13.44 Main Procedure for ShellSort
+
+/*********************************************************************************/
+
+
+   |   void DeltaInsertionSort(SortingArray A, int i, int delta)
+   |   {
+   |      /* assume: typedef enum {false, true} Boolean; has been declared */
+   |
+ 5 |      int      j,k;
+   |      KeyType  KeyToInsert;
+   |      Boolean  NotDone;
+   |
+   |      j = i + delta;
+10 |
+   |      while (j < n) {
+   |         
+   |         /* obtain a new KeyToInsert */
+   |            KeyToInsert = A[j];
+15 |      
+   |         /* move each Key > KeyToInsert rightward by delta spaces */
+   |         /* to open up a hole in which to place the KeyToInsert */
+   |            k = j;
+   |            NotDone = true;
+20 |            do {
+   |               if (A[k - delta] <= KeyToInsert) {
+   |                  NotDone = false;
+   |               } else {
+   |                  A[k] = A[k - delta];
+25 |                  k -= delta;
+   |                  if (k == i) NotDone = false;
+   |               }
+   |            } while (NotDone);
+   |      
+30 |         /* put KeyToInsert in hole A[k] opened by moving */
+   |         /* keys > KeyToInsert rightward */
+   |            A[k] = KeyToInsert;
+   |         
+   |         /* consider next KeyToInsert at an increment of delta to the right */
+35 |            j += delta;
+   |      
+   |      }
+   |   }
+
+Program 13.45 Subroutine to InsertionSort ith Delta Subsequence in A
+
+/*********************************************************************************/
+
+
+   |   void BubbleSort(SortingArray A)
+   |   {    
+   |      int i; KeyType Temp; Boolean NotDone;
+   |
+ 5 |      do {
+   |         NotDone = false;              /* initially, assume NotDone is false */
+   |         for (i = 0; i < n-1; ++i) {
+   |            if (A[i] > A[i+1]) {  /* the pair (A[i], A[i+1]) is out of order */
+   |               /* exchange A[i] and A[i + 1] to put them in sorted order */
+10 |                  Temp = A[i]; A[i] = A[i + 1]; A[i + 1] =Temp;
+   |               /* if you swapped you need another pass */
+   |                  NotDone = true;
+   |            }
+   |         }
+15 |      } while (NotDone);         /* NotDone == false iff no pair of keys was */
+   |   }                                             /* swapped on the last pass */
+
+Program 13.46 BubbleSort
+
+/*********************************************************************************/

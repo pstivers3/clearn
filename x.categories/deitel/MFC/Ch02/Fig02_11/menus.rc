@@ -1,0 +1,30 @@
+// Fig. 2.11   menus.rc
+// resource script for menus example
+#include <afxres.h>
+#include "menus_ids.h"
+
+Food MENU
+{
+   POPUP "File"
+   {
+      MENUITEM "Exit", IDM_EXIT
+   }
+
+   POPUP "Entree"
+   {
+      MENUITEM "Chicken", IDM_CHICKEN 
+      MENUITEM "Fish", IDM_FISH  
+   }
+
+   POPUP "Beverage"
+   {
+      MENUITEM "Ginger Ale", IDM_GINGERALE 
+      MENUITEM "Root Beer", IDM_ROOTBEER 
+   }
+
+   POPUP "Order"
+   {
+      MENUITEM "Show Total", IDM_SHOW_TOTAL
+      MENUITEM "Clear Total", IDM_CLEAR_TOTAL
+   }
+}

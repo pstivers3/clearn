@@ -1,0 +1,322 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 3 of                          */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+   |   int SumSquares(int m, int n)
+   |   {
+   |      int i, sum;
+   |                                               /* Recall that the assignment */
+ 5 |      sum = 0;                                         /* sum += i*i has the */
+   |      for (i = m; i <= n; ++i) sum += i*i;        /* same effect in C as the */
+   |      return sum;                              /* assignment sum = sum + i*i */
+   |   }
+
+Program 3.1 Iterative Sum of Squares
+
+/*********************************************************************************/
+
+
+   |   int SumSquares(int m, int n)
+   |   {
+   |      (to compute the sum of the squares in the range m:n, where m <= n)
+   |   
+ 5 |      if (there is more than one number in the range m:n) {
+   |         (the solution is gotten by adding the square of m to)
+   |         (the sum of the squares in the range m+1:n)
+   |      } else {
+   |         (there is only one number in the range m:n, so m == n, and)
+10 |         (the solution is therefore just the square of m)
+   |      }
+   |   }
+
+Program Strategy 3.2 Recursive Sum of Squares
+
+/*********************************************************************************/
+
+
+   |   int SumSquares(int m, int n)                             /* assume m <= n */
+   |   {
+   |      if (m < n) {
+   |         return  m*m + SumSquares(m+1,n);                   /* the recursion */
+ 5 |      } else {
+   |         return m*m;                                        /* the base case */
+   |      }   
+   |   }
+
+Program 3.3 Recursive Sum of Squares
+
+/*********************************************************************************/
+
+
+   |   int SumSquares(int m, int n)                             /* assume m <= n */
+   |   {
+   |   
+   |      if  (m < n) {
+ 5 |          return SumSquares(m, n - 1) + n*n;                /* the recursion */
+   |      } else {
+   |         return n*n;                                        /* the base case */
+   |      }
+   |      
+   |   }
+
+Program 3.4 Going-Down Recursion
+
+/*********************************************************************************/
+
+
+   |   int SumSquares(int m, int n)
+   |   {
+   |      (to compute the sum of the squares in the range m:n, where m <= n)
+   |   
+ 5 |      if (there is more than one number in the range m:n) {
+   |         (the solution is gotten by adding the square of n to)
+   |         (the sum of the squares in the range m:n-1)
+   |      } else {
+   |         (there is only one number in the range m:n, so m == n, and)
+10 |         (the solution is therefore just the square of n)
+   |      }
+   |      
+   |   }
+
+Program Strategy 3.5 Strategy for Going-Down Recursion
+
+/*********************************************************************************/
+
+
+   |   int SumSquares(int m, int n)                             /* assume m <= n */
+   |   {
+   |      int middle;
+   |   
+ 5 |      if (m == n) {
+   |         return m*m;                                        /* the base case */
+   |      } else {
+   |         middle = (m+n) / 2;
+   |         return SumSquares(m, middle) + SumSquares(middle +1, n) ;
+10 |      }
+   |   }
+
+Program 3.6 Recursion Combining Two Half-Solutions
+
+/*********************************************************************************/
+
+
+   |   int Factorial(int n)
+   |   {
+   |      int i, f;
+   |
+ 5 |      f = 1;                                   /* Recall that f *= i has the */
+   |      for (i=2; i <= n; ++i)  f *= i;         /* same effect as f = f*i in C */
+   |      return f;
+   |   }
+
+Program 3.11 Iterative Factorial
+
+/*********************************************************************************/
+
+
+   |   int Factorial(int n)
+   |   {
+   |      if (n == 1) {
+   |         return 1;                                              /* base case */
+ 5 |      } else {
+   |         return  n * Factorial(n - 1);                          /* recursion */
+   |      }
+   |   }
+
+Program 3.12 Recursive Factorial
+
+/*********************************************************************************/
+
+
+   |   int Product(int m, int n)
+   |   {
+   |      (to compute the product of the integers from m to n)
+   |   
+ 5 |      if (the range m:n has only one integer in it) {
+   |         (return m as the solution, since m == n)   /* the base case */
+   |      } else {
+   |         (the range m:n must have more than one integer in it, so)
+   |         (compute the midpoint of m:n as the value of the variable middle)
+10 |         (and return the product of the integers in the range m:middle)
+   |         (times the product of the integers in the range middle+1:n)
+   |      }
+   |      
+   |   }
+
+Program Strategy 3.13 Multiplying m:n Together Using Half-Ranges
+
+/*********************************************************************************/
+
+
+   |   int Product(int m, int n)                                /* assume m <= n */
+   |   {
+   |      int middle;
+   |   
+ 5 |      if (m == n) {
+   |         return m;                                          /* the base case */
+   |      } else {
+   |         middle = (m+n) / 2;
+   |         return Product(m, middle) * Product(middle+1, n);
+10 |      }
+   |      
+   |   }
+
+Program 3.14 Multiplying m:n Together Using Half-Ranges
+
+/*********************************************************************************/
+
+
+   |   void Reverse(NodeType **L)                         /* to Reverse a list L */
+   |   {
+   |      NodeType *R, *N, *L1;
+   |
+ 5 |      L1 = *L;         /* L1 points to the first node of the list to reverse */
+   |      R = NULL;        /* initialize R, the reversed list, to the empty list */
+   |      while (L1 != NULL) {
+   |         N = L1;                           /* let N point to L1's first node */
+   |         L1 = L1->Link;          /* now, let L1 point to the remainder of L1 */
+10 |         N->Link = R;                             /* link N to the rest of R */
+   |         R = N;                    /* and make R point to its new first node */
+   |      }
+   |      *L = R;      /* finally, replace L by a pointer to the reversed list R */
+   |   }
+
+Program 3.15 Iterative List Reversal
+
+/*********************************************************************************/
+
+
+   |   NodeType *Reverse(NodeType *L)
+   |   {
+   |      /* to Reverse a list L */
+   |
+ 5 |      if (L is the empty list) {
+   |         (the result is the reverse of the empty list)          /* base case */
+   |      } else { 
+   |         (In the case that L is non-empty,)
+   |         (partition the list L into its Head and Tail.)
+10 |         (Then, concatenate the Reverse of the Tail of L)  /* recursion step */
+   |         (with the Head of L)
+   |      }
+   |   
+   |   }
+
+Program Strategy 3.17 For Reversing a List, L
+
+/*********************************************************************************/
+
+
+   |    void Partition(NodeType *L, NodeType **Head, NodeType **Tail)
+   |   {
+   |      /* to divide list L into its Head & Tail */
+   |
+ 5 |      if ( L != NULL) {
+   |         *Tail = L->Link;    /* Tail contains all nodes of L after the first */
+   |         *Head = L;                /* Head contains just the first node of L */
+   |         (*Head)->Link = NULL;              /* mark the end of the Head node */
+   |      }
+   |   }
+
+Program 3.18 Partitioning a List L into its Head and Tail
+
+/*********************************************************************************/
+
+
+   |   NodeType *Concat(NodeType *L1, NodeType *L2)
+   |   {   
+   |      NodeType *N;
+   |   
+ 5 |      if (L1 == NULL) {
+   |         return L2;
+   |      } else {
+   |         N = L1;                      /* let N point to the first node of L1 */
+   |         while (N->Link != NULL) N = N->Link;    /* find the last node of L1 */
+10 |         N->Link = L2;          /* set the link of the last node of L1 to L2 */
+   |         return L1;          /* return the pointer to the concatenated lists */
+   |      }
+   |   }
+
+Program (unnumbered) in text at bottom of page 77
+
+/*********************************************************************************/
+
+
+   |   NodeType *Reverse(NodeType *L)
+   |   {
+   |      NodeType *Head, *Tail;
+   |
+ 5 |      if (L == NULL) {
+   |         return NULL;                                           /* base case */
+   |      } else { 
+   |         Partition(L, &Head, &Tail);          /* divide L into Head and Tail */
+   |         return Concat(Reverse(Tail), Head);               /* recursion step */
+10 |      }
+   |   
+   |   }
+
+Program 3.19 Refinement for Reverse(L)
+
+/*********************************************************************************/
+
+
+   |   void ReverseString(char *S, int m, int n)    /* to reverse the characters */
+   |   {                                         /* from m through n in string S */
+   |      char c;
+   |
+ 5 |      if (m < n) {
+   |         c = S[m]; S[m] = S[n]; S[n] = c;           /* first, swap the edges */
+   |         ReverseString(S, m + 1, n - 1);     /* and then, reverse the center */
+   |      }
+   |   }
+
+Program 3.20 Reverse Characters m:n of String S
+
+/*********************************************************************************/
+
+
+   |   void MoveTowers(int n, int start, int finish, int spare)
+   |   {
+   |      /* To move a tower of n disks on the start-peg to the finish-peg */
+   |      /* using the spare-peg as an intermediary. */
+ 5 |
+   |      if (n == 1) {
+   |         (move one disk directly from start-peg to finish-peg)   
+   |      } else {
+   |         (move a tower of n - 1 disks from start-peg to spare-peg)
+10 |         (move one disk directly from start-peg to finish-peg)
+   |         (move a tower of n - 1 disks from spare-peg to finish-peg)
+   |      }
+   |   }
+
+Program Strategy 3.22 Recursive MoveTowers Procedure
+
+/*********************************************************************************/
+
+
+   |   void MoveTowers(int n, int start, int finish, int spare)
+   |   {
+   |      /* To move a tower of n disks on the start-peg to the finish-peg */
+   |      /* using the spare-peg as an intermediary.*/
+ 5 |   
+   |      if (n == 1) { 
+   |         printf("Move a disk from peg %1d to peg %1d\n", start, finish);   
+   |      } else {
+   |         MoveTowers(n - 1, start, spare, finish);
+10 |         printf("Move a disk from peg %1d to peg %1d\n", start, finish);
+   |         MoveTowers(n - 1, spare, finish, start);
+   |      }
+   |   }
+
+Program 3.23 Recursive Towers of Hanoi Solution
+
+/*********************************************************************************/

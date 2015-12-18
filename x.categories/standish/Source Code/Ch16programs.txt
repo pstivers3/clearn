@@ -1,0 +1,24 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 16 of                         */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+	|	do {
+	|		(write some code)
+	|		(identify and fix problems in the code)
+	|	} while (substantial problems remain in the code);
+
+Program Strategy 16.5 The Code-and-Fix Model
+
+/*********************************************************************************/
+

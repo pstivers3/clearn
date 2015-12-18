@@ -1,0 +1,16 @@
+// Fig. 4.2: checkbox.rc
+// check box resource file
+#include <afxres.h>
+#include "checkbox_ids.h"
+
+CCheckBox DIALOG  50, 50, 110, 80
+CAPTION "CheckBox"
+{
+   GROUPBOX     "Flavors",    IDC_STATIC,     15,  5, 80, 50
+
+   AUTOCHECKBOX "Chocolate",  IDC_CHOCOLATE,  20, 15, 60, 10
+   AUTOCHECKBOX "Vanilla",    IDC_VANILLA,    20, 25, 60, 10
+   AUTOCHECKBOX "Strawberry", IDC_STRAWBERRY, 20, 35, 60, 10
+
+   DEFPUSHBUTTON "OK",        IDOK,           40, 60, 30, 15
+}

@@ -1,0 +1,569 @@
+
+/*********************************************************************************/
+/*                                                                               */
+/*                         C Programs from Chapter 7 of                          */
+/*            Data Structures, Algorithms and Software Principles in C           */
+/*                             by Thomas A. Standish                             */
+/*                                                                               */
+/*          Copyright (C) 1995, Addison-Wesley, Inc., all rights reserved        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+/*********************************************************************************/
+
+
+   |   /*   ------------< begin file "StackInterface.h" >------------     */
+   |
+   |      #include "StackTypes.h"       /* imports the data type definitions of */
+   |                                                      /* ItemType and Stack */
+ 5 |   
+   |   /* defined operations */
+   |   
+   |      extern void InitializeStack(Stack *S);
+   |         /* Initialize the stack S to be the empty stack */
+10 |   
+   |      extern int Empty(Stack *S);
+   |         /* Returns TRUE == 1 if and only if the stack S is empty */
+   |   
+   |      extern int Full(Stack *S);
+15 |         /* Returns TRUE == 1 if and only if the stack S is full */
+   |   
+   |      extern void Push(ItemType X, Stack *S);
+   |         /* If S is not full, push a new item X onto the top of S */
+   |   
+20 |      extern void Pop(Stack *S, ItemType *X);
+   |         /* If S is non-empty, pop an item off the top of S and put it in X */
+   |
+   |   /*   ------------< end-of-file "StackInterface.h" >------------     */
+
+Program 7.3 Stack ADT Interface "StackInterface.h"
+
+/*********************************************************************************/
+
+
+   |   /*   ------------< begin file "QueueInterface.h" >------------     */
+   |
+   |      #include "QueueTypes.h"        /* imports the data type definitions of */
+   |                                                       /* ItemType and Queue */
+ 5 |   
+   |   /* defined operations */
+   |   
+   |      extern void InitializeQueue(Queue *Q);
+   |         /* Initialize the queue Q to be the empty queue */
+10 |   
+   |      extern int Empty(Queue *Q);
+   |         /* Returns TRUE == 1 if and only if the queue Q is empty */
+   |   
+   |      extern int Full(Queue *Q);
+15 |         /* Returns TRUE == 1 if and only if the queue Q is full */
+   |   
+   |      extern void Insert(ItemType R, Queue *Q);
+   |         /* If Q is not full, insert a new item R onto the rear of Q */
+   |   
+20 |      extern void Remove(Queue *Q, ItemType *F);
+   |         /* If Q is non-empty, remove the frontmost item of Q and put it in F */
+   |   
+   |   /*   ------------< end-of-file "QueueInterface.h" >------------    */
+
+Program 7.4 Queue ADT Interface "QueueInterface.h"
+
+/*********************************************************************************/
+
+
+   |   /*   Parenthesis Matching Using Stacks    */
+   |
+   |   #include <stdio.h>
+   |   #include <stdlib.h>
+ 5 |   #include <string.h>
+   |   #include "StackInterface.h"          /* Here, assume char is the ItemType */
+   |   
+   |   char *InputExpression;                 /* an arithmetic expression string */
+   |   
+10 |      
+   |   int Match(char c, char d)                                /* this function */
+   |   {                                          /* returns TRUE if and only if */
+   |      switch (c) {                             /* c and d are matching pairs */
+   |                                                       /* of parentheses ( ) */
+15 |         case   '(' : return   d == ')' ;             /* square brackets [ ] */
+   |                      break;                                /* or braces { } */
+   |
+   |         case   '[' : return   d == ']' ;
+   |                      break;
+20 |
+   |         case   '{' : return   d == '}' ;
+   |                      break;
+   |
+   |         default    : return (0);
+25 |                      break;
+   |      }
+   |   }      
+   |   void ParenMatch(void)
+   |   {
+30 |      int     n, i = 0;
+   |      char    c,d;
+   |      Stack   ParenStack;
+   |
+   |      InitializeStack(&ParenStack);  /* let the ParenStack be an empty stack */
+35 |      n = strlen(InputExpression);         /* n == length of InputExpression */
+   |   
+   |      while ( i < n ) {
+   |
+   |         d = InputExpression[i];                   /* d == the ith character */
+40 |
+   |         if (d == '('  ||  d == '['  ||  d == '{') {
+   |
+   |            Push(d,&ParenStack)              /* push left paren on the stack */
+   |
+45 |         } else if (d == ')'  ||  d == ']'  ||  d == '}') {
+   |
+   |            if ( Empty(&ParenStack) ) {      
+   |               printf("More right parentheses than left parentheses\n");
+   |               return;
+50 |            } else {
+   |               Pop(&ParenStack,&c);        /* get last left paren from stack */
+   |               if (!Match(c,d)) {                /* if not match right paren */
+   |                  printf("Mismatched Parentheses: %c and %c\n",c,d);
+   |                  return;
+55 |               }
+   |            }
+   |         }
+   |
+   |         ++i;               /* increase index i to scan next input character */
+60 |      }
+   |      
+   |      if ( Empty(&ParenStack) ) {
+   |         printf("Parentheses are balanced properly\n");
+   |      } else {
+65 |         printf("More left parentheses than right parentheses\n");
+   |      }
+   |   }
+   |   
+   |   int main(void)
+70 |   {
+   |      InputExpression = (char *) malloc(100); /* allocate space for a string */
+   |
+   |      printf("Give Input Expression without blanks: "); /* get input expression */
+   |
+75 |      scanf("%s",InputExpression);                              /* from user */
+   |
+   |      ParenMatch();       /* check for balanced parentheses and print result */
+   |
+   |   }
+
+Program 7.5 Checking for Balanced Parentheses 
+
+/*********************************************************************************/
+
+
+   |   #include  <stdio.h>
+   |   #include <stdlib.h>              /* contains the conversion function atof */
+   |   #include <math.h>                   /* contains the exp and log functions */
+   |   #include <ctype.h>                   /* contains the function, isdigit(d) */
+ 5 |   #include <string.h>
+   |   #include "StackInterface.h"         /* Here, assume float is the ItemType */
+   |
+   |      Stack  EvalStack;                          /* let EvalStack be a stack */
+   |      char  *PostfixString;                  /* the input string to evaluate */
+10 |
+   |   void InterpretPostfix(void)
+   |   {
+   |      float LeftOperand, RightOperand, Result; 
+   |      int   i;        /* the index of the ith character in the PostfixString */
+15 |      char  c;                  /* c = the ith character of the input string */
+   |      char *s = "x";           /* s is a string used to convert c to a float */
+   |
+   |     InitializeStack(&EvalStack);        /* let EvalStack be empty initially */
+   |
+20 |     for (i = 0; i < strlen(PostfixString); ++i) {
+   |   
+   |      s[0] = c = PostfixString[i]; /*set both s[0] and c to the ith character*/
+   |                                                      /* of the input string */
+   |      if (isdigit(c)) {  /* if c is a digit character, then push c's floating*/
+25 |                           /*  point value onto the stack, where s must be a */
+   |         Push((float)atof(s),&EvalStack); /* null-terminated string for atof */
+   |      
+   |      } else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
+   |                     
+30 |         Pop(&EvalStack, &RightOperand);          /* but if c is an operator */
+   |         Pop(&EvalStack, &LeftOperand );       /* then perform the operation */
+   |      
+   |         switch (c) {
+   |         case '+' : Push(LeftOperand + RightOperand, &EvalStack);
+35 |                    break;
+   |         case '-' : Push(LeftOperand - RightOperand, &EvalStack);
+   |                    break;
+   |         case '*' : Push(LeftOperand * RightOperand, &EvalStack);
+   |                    break;
+40 |         case '/  : Push(LeftOperand / RightOperand, &EvalStack);
+   |                    break;
+   |         case '^' : Push(exp(log(LeftOperand)*RightOperand), &EvalStack);
+   |                    break;
+   |         default :  break;
+45 |         }
+   |      }
+   |     }
+   |   
+   |     Pop(&EvalStack,&Result);              /* remove final result from stack */
+50 |     printf("Value of postfix expression = %f\n", Result);   /* and print it */
+   |   
+   |   }
+
+Program 7.7 Interpreting a Postfix String
+
+/*********************************************************************************/
+
+
+   |   /*   ------------< begin file "StackTypes.h" >------------     */
+   |   
+   |   #define MAXSTACKSIZE 100
+   |         
+ 5 |   typedef  arbitrary ItemType;                   /* the type "arbitrary" is */
+   |                                        /* defined as "char" for Program 7.5 */
+   |   typedef  struct {                          /* and "float" for Program 7.7 */
+   |               int       Count;   
+   |               ItemType  Items[MAXSTACKSIZE];
+10 |            }Stack;
+   |
+   |   /*   ------------< end-of-file "StackTypes.h" >------------   */
+   |   /*   --------------< begin file "StackImplementation.c" >--------------   */
+   |
+15 |   #include <stdio.h>
+   |   #include <stdlib.h>                  /* the file "StackInterface.h" comes */
+   |   #include "StackInterface.h"            /* from Program 7.3 which includes */
+   |                                       /* "StackTypes.h" on lines 1:12 above */
+   |    /* -------------------- */
+20 |   
+   |      void InitializeStack(Stack *S);                     /* S->Count gives  */
+   |      {                                          /* the number of items in S */
+   |         S->Count = 0;                 /* An empty stack S has 0 items in it */
+   |      }
+25 |   
+   |    /* -------------------- */
+   |
+   |      int Empty(Stack *S);
+   |      {
+30 |         return ( S->Count  ==  0  );
+   |      }
+   |
+   |    /* -------------------- */
+   |   
+35 |      int Full(Stack *S);
+   |      {
+   |         return ( S->Count  ==  MAXSTACKSIZE );
+   |      }
+   |
+40 |    /* -------------------- */
+   |
+   |      void Pop(Stack *S, ItemType *X);
+   |      {
+   |         if ( S->Count == 0 ) {
+45 |            SystemError("attempt to pop the empty stack");
+   |         } else {
+   |            --(S->Count) ;
+   |            *X = S->Items[S->Count];
+   |         }
+50 |      }
+   |
+   |    /* -------------------- */
+   |
+   |      void Push(ItemType X, Stack *S);
+55 |      {
+   |         if ( S->Count  ==  MAXSTACKSIZE )  {
+   |            SystemError("attempt to push new item onto a full stack");
+   |         } else {
+   |            S->Items[S->Count] = X;
+60 |            ++(S->Count);
+   |         }
+   |      }
+   |
+   |   /*  ---------------< end-of-file "StackImplementation.c" >--------------  */
+
+Program 7.8 Sequential Stack Implementation
+
+/*********************************************************************************/
+
+
+   |   /*   ------------< begin file "StackTypes.h" >------------   */
+   |
+   |      typedef  arbitrary  ItemType;               /* the type "arbitrary" is */
+   |                                        /* defined as "char" for Program 7.5 */
+ 5 |      typedef  struct  StackNodeTag {         /* and "float" for Program 7.7 */
+   |                  ItemType              Item;   
+   |                  struct StackNodeTag  *Link;
+   |               }StackNode;
+   |
+10 |      typedef  struct  {
+   |                  StackNode *ItemList;
+   |               }Stack;
+   |
+   |   /*   ------------< end-of-file "StackTypes.h" >------------     */
+15 |
+   |
+   |    /*    ------------< begin file "StackImplementation.c" >------------   */
+   |
+   |      #include  <stdio.h>
+20 |      #include <stdlib.h>              /* the file "StackInterface.h" comes  */
+   |      #include "StackInterface.h"        /* from Program 7.3 which includes  */
+   |                                       /* "StackTypes.h" on lines 1:14 above */
+   |
+   |      void InitializeStack(Stack *S)
+25 |      {
+   |         S->ItemList = NULL;
+   |      }
+   |   
+   |      int Empty(Stack *S)
+30 |      {
+   |         return ( S->ItemList == NULL );
+   |      }
+   |      int Full(Stack *S)
+   |      {                     /* we assume an already constructed stack, S, is */
+35 |         return 0;                   /* not full, since it could potentially */
+   |      }                                        /* grow as a linked structure */
+   |      
+   |      void Push(ItemType X, Stack *S)
+   |      {   
+40 |         StackNode *Temp;
+   |                                          /* attempt to allocate a new stack */
+   |         Temp = (StackNode *) malloc(sizeof(StackNode));             /* node */
+   |
+   |         if (Temp == NULL) {            /* allocation failed if Temp == NULL */
+45 |            SystemError("system storage is exhausted");
+   |         } else {                         /* set Temp's link to point to the */
+   |            Temp->Link = S->ItemList;          /* remainder of the ItemList. */
+   |            Temp->Item = X;                          /* set its item to be X */
+   |            S->ItemList = Temp;                /* let S's ItemList  point to */
+50 |         }                                     /* the new topmost stack node */
+   |      }
+   |   
+   |      void Pop(Stack *S, ItemType *X)
+   |      {   
+55 |         StackNode *Temp;
+   |
+   |         if (S->ItemList == NULL) {
+   |            SystemError("attempt to pop the empty stack");
+   |         } else {                                    /* put a pointer to the */
+60 |            Temp = S->ItemList;         /* top node of S's ItemList in Temp. */
+   |            *X = Temp->Item;                     /* put top stack Item in X. */
+   |            S->ItemList = Temp->Link;             /* make S's ItemList point */
+   |            free(Temp);                /* to the next node on the list, then */
+   |         }                      /* free the storage for the former top node. */
+65 |      }
+   |
+   |    /*   -----< end-of-file "StackImplementation.c"  linked stacks >------   */
+
+Program 7.9 Linked Stack Implementation
+
+/*********************************************************************************/
+
+
+   |   double Factorial(int n)
+   |   {
+   |      if (n <= 1) {
+   |         return  1.0;
+ 5 |      } else {
+   |         return  n * Factorial(n - 1);
+   |      }
+   |   }
+
+Program 7.10 Recursive Factorial Again
+
+/*********************************************************************************/
+
+
+   |   /*   ------------< begin file "QueueTypes.h" >------------   */
+   |
+   |      #define MAXQUEUESIZE 100;
+   |   
+ 5 |      typedef  arbitrary  ItemType;        /* the ItemType can be arbitrary. */
+   |                        
+   |      typedef  struct {   
+   |                  int       Count;                  /* number of queue items */
+   |                  int       Front;
+10 |                  int       Rear;
+   |                  ItemType  Items[MAXQUEUESIZE];
+   |               }Queue;
+   |   
+   |   /*   ------------< begin file "QueueTypes.h" >------------     */
+15 |
+   |
+   |   /*   ------------< begin file "QueueImplementation.c" >------------ */
+   |   
+   |
+20 |      #include <stdio.h>
+   |      #include <stdlib.h>                     /* the file "QueueInterface.h" */
+   |      #include "QueueInterface.h"        /* includes the file "QueueTypes.h" */
+   |                                             /* defined on lines 1:14 above. */
+   |                                                 /* See Program 7.4, line 3. */
+25 |   /* -------------------- */
+   |   
+   |      void InitializeQueue(Queue *Q)
+   |      {                  
+   |         Q->Count = 0;              /* Count == number of items in the queue */
+30 |         Q->Front = 0;           /* Front == location of item to remove next */
+   |         Q->Rear = 0;                   /* Rear == place to insert next item */
+   |      }
+   |   
+   |    /* -------------------- */
+35 |   
+   |      int Empty(Queue *Q)
+   |      {
+   |         return ( Q->Count == 0 );
+   |      }
+40 |   
+   |    /* -------------------- */
+   |   
+   |      int Full(Queue *Q)
+   |      {
+45 |         return (Q->Count == MAXQUEUESIZE);
+   |      }
+   |   
+   |    /* -------------------- */
+   |   
+50 |      void Insert(ItemType R, Queue *Q)
+   |      {
+   |         if (Q->Count == MAXQUEUESIZE) {
+   |            SystemError("attempt to insert item into a full Queue");
+   |         } else {
+55 |            Q->Items[Q->Rear] = R;
+   |            Q->Rear = (Q->Rear + 1) % MAXQUEUESIZE;
+   |            ++(Q->Count);
+   |         }
+   |      }
+60 |
+   |    /* -------------------- */
+   |   
+   |      void Remove(Queue *Q, ItemType *F)
+   |      {
+65 |         if (Q->Count == 0) {
+   |            SystemError("attempt to remove item from empty Queue");
+   |         } else {
+   |            *F = Q->Items[Q->Front];
+   |            Q->Front = (Q->Front + 1) % MAXQUEUESIZE;
+70 |            --(Q->Count);
+   |         }
+   |      }
+   |   
+   |    /* -------------------- */
+75 |
+   |    /* ------------< end-of-file "QueueImplementation.c" >------------ */
+   |
+
+Program 7.19 Circular Queue Representation
+
+/*********************************************************************************/
+
+
+   |   /*   ------------< begin file "QueueTypes.h" >------------   */
+   |   
+   |   typedef  arbitrary  ItemType;           /* the ItemType can be arbitrary. */
+   |   
+ 5 |   typedef  struct  QueueNodeTag {
+   |               ItemType               Item;   
+   |               struct  QueueNodeTag  *Link;
+   |            }QueueNode;
+   |                        
+10 |   typedef  struct {                                 /* a queue is empty iff */
+   |               QueueNode  *Front;                       /* its Front == NULL */
+   |               QueueNode  *Rear;
+   |            }Queue;
+   |   
+15 |   /*   ------------< end-of-file "QueueTypes.h" >------------   */
+   |
+   |   /*   ------------< begin file "QueueImplementation.c" >------------   */
+   |   
+   |      #include <stdio.h>                         /* the "QueueTypes.h" file, */
+20 |      #include <stdlib.h>                   /* given above on lines 1:15, is */
+   |      #include "QueueInterface.h"          /* included in "QueueInterface.h" */
+   |                                                /* on line 3 of Program 7.4. */
+   |      void InitializeQueue(Queue *Q)
+   |      {
+25 |         Q->Front = NULL;
+   |         Q->Rear  = NULL;
+   |      }
+   |   
+   |    /* -------------------- */
+30 |   
+   |      int Empty(Queue *Q);
+   |      {
+   |         return (Q->Front == NULL);
+   |      }
+35 |    /* -------------------- */
+   |   
+   |      int Full(Queue *Q)   
+   |      {                     /* we assume an already constructed queue, Q, is */
+   |         return 0;              /* not full, since it could potentially grow */
+40 |      }                                             /* as a linked structure */
+   |   
+   |   /* -------------------- */
+   |   
+   |      void Insert(ItemType R, Queue *Q)
+45 |      {   
+   |         QueueNode *Temp;
+   |                                                      /* attempt to allocate */
+   |         Temp = (QueueNode *) malloc(sizeof(QueueNode));       /* a new node */
+   |
+50 |         if (Temp == NULL) {               /* Temp = NULL signals allocation */
+   |            SystemError("system storage is exhausted");           /* failure */
+   |         } else {
+   |            Temp->Item = R;
+   |            Temp->Link = NULL;
+55 |            if ( Q->Rear == NULL ) {
+   |               Q->Front = Temp;
+   |               Q->Rear = Temp;
+   |            } else {
+   |               Q->Rear->Link = Temp;
+60 |               Q->Rear = Temp;
+   |            }
+   |         }
+   |      }
+   |   
+65 |   /* -------------------- */
+   |   
+   |      void Remove(Queue *Q, ItemType *F)
+   |      {   
+   |         QueueNode *Temp;
+70 |   
+   |         if (Q->Front == NULL) {
+   |            SystemError("attempt to remove item from empty Queue");
+   |         } else {
+   |            *F = Q->Front->Item;
+75 |            Temp = Q->Front;
+   |            Q->Front = Temp->Link;
+   |            free(Temp);
+   |            if (Q->Front == NULL) Q->Rear = NULL;
+   |         }
+80 |      }
+   |   
+   |   /* -------------------- */
+   |
+   |   /* ------------< end-of-file "QueueImplementation.c" >------------   */
+85 |
+
+Program 7.20 Linked Queue Representation
+
+/*********************************************************************************/
+
+
+   |
+   |   void WriteLineToBePrinted(void);                        /* the CPU's task */
+   |   {
+   |      if ( there is a line L to print) && 
+ 5 |            (the print buffer is neither full nor busy) {
+   |         Insert(L, &PrintBufferQueue);
+   |      }
+   |   }
+   |   
+10 |   void ReadLineToBePrinted(void)                      /* the Printer's task */
+   |   {
+   |      if  (the print buffer is neither empty nor busy) {   
+   |         Remove(&PrintBufferQueue, &L);
+   |         (Print line &L on the Printer)
+15 |      }
+   |   }
+   |   
+
+Program 7.23 Reading and Writing Print Buffer Lines
+
+/*********************************************************************************/
+
